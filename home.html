@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MuvMi Home</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #e5e5ea;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 32px 0 48px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .phone {
+      width: 393px;
+      height: 852px;
+      border-radius: 48px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06);
+      position: relative;
+    }
+
+    /* Full-screen Figma asset images */
+    .screen-img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: none;
+    }
+    .screen-img.active { display: block; }
+
+    /* Transparent hotspot button */
+    .hotspot {
+      position: absolute;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Map screen image -->
+  <img class="screen-img active" id="img-map"
+    src="https://www.figma.com/api/mcp/asset/81ecb736-4993-4f28-a412-2a31ee38481e"
+    alt="Map">
+
+  <!-- Side menu screen image -->
+  <img class="screen-img" id="img-sidemenu"
+    src="https://www.figma.com/api/mcp/asset/7dd6c237-b296-4f26-beb5-fe2538df8446"
+    alt="Side menu">
+
+  <!-- btn-menu hotspot: left:23 top:104 size:64×64 (matches Figma node 1911:7950) -->
+  <button class="hotspot" id="btn-menu"
+    style="left:10px; top: 65px; width:48px; height:48px;"
+    onclick="showSideMenu()">
+  </button>
+
+  <!-- Wallet card hotspot on side menu: left:25 top:242 size:305×180 -->
+  <button class="hotspot" id="btn-wallet-card"
+    style="left:25px; top:160px; width:305px; height: 120px; display:none; border-radius:16px;"
+    onclick="window.location.href='index.html'">
+  </button>
+
+  <!-- Dim-area hotspot on side menu (right portion) to close -->
+  <button class="hotspot" id="btn-close"
+    style="left:330px; top:0; width:63px; height:852px; display:none;"
+    onclick="showMap()">
+  </button>
+
+</div>
+
+<script>
+  function showSideMenu() {
+    document.getElementById('img-map').classList.remove('active');
+    document.getElementById('img-sidemenu').classList.add('active');
+    document.getElementById('btn-menu').style.display = 'none';
+    document.getElementById('btn-close').style.display = 'block';
+    document.getElementById('btn-wallet-card').style.display = 'block';
+  }
+
+  function showMap() {
+    document.getElementById('img-sidemenu').classList.remove('active');
+    document.getElementById('img-map').classList.add('active');
+    document.getElementById('btn-close').style.display = 'none';
+    document.getElementById('btn-wallet-card').style.display = 'none';
+    document.getElementById('btn-menu').style.display = 'block';
+  }
+</script>
+</body>
+</html>
