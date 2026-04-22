@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MuvMi Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -26,12 +27,10 @@
       position: relative;
     }
 
-    /* Full-screen Figma asset images */
+    /* Home screen layer */
     .screen-img {
       position: absolute; inset: 0;
       width: 100%; height: 100%;
-      object-fit: cover;
-      object-position: center top;
       display: none;
     }
     .screen-img.active { display: block; }
@@ -45,20 +44,459 @@
       -webkit-tap-highlight-color: transparent;
       padding: 0;
     }
+
+    /* ── Dynamic Side Menu ───────────────────────────────── */
+    .side-menu {
+      position: absolute; inset: 0;
+      display: none; z-index: 10;
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .side-menu.active { display: block; }
+
+    /* Map peek — right strip */
+    .side-menu-map-bg {
+      position: absolute; inset: 0;
+      background: #c9d1c5;
+    }
+
+    /* Main panel */
+    .side-menu-panel {
+      position: absolute; left: 0; top: 0;
+      width: 338px; height: 100%;
+      background: #fff;
+      overflow-y: auto; overflow-x: hidden;
+      display: flex; flex-direction: column;
+    }
+
+    /* ── Status bar (matches wallet-app) ── */
+    .sm-statusbar {
+      height: 44px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px 0 48px;
+      font-size: 15px; font-weight: 600; color: #4f4f4f; letter-spacing: -0.165px;
+    }
+
+    /* ── Profile section ── */
+    .sm-profile {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 16px 16px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    .sm-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: #0d57e2;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .sm-profile-info { display: flex; flex-direction: column; gap: 4px; }
+    .sm-phone {
+      font-size: 16px; font-weight: 600; color: #4f4f4f; letter-spacing: 0.25px;
+    }
+    .sm-gang-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #0d57e2; border-radius: 99px;
+      padding: 1px 10px; width: fit-content;
+      font-size: 12px; font-weight: 600; color: #fff; letter-spacing: 0.25px;
+    }
+    .sm-gang-chevron { font-size: 10px; opacity: 0.8; }
+
+    /* ── Cards area ── */
+    .sm-cards { padding: 16px 16px 0; display: flex; flex-direction: column; gap: 12px; }
+
+    /* Wallet card — mirrors .balance-card from wallet-app */
+    .sm-wallet-card {
+      border: 1px solid #e7eefc;
+      border-radius: 16px; overflow: hidden;
+    }
+    .sm-wallet-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px 10px;
+    }
+    .sm-wallet-label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 16px; font-weight: 600; color: #0d57e2; letter-spacing: 0.25px;
+    }
+    .sm-wallet-icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .sm-wallet-balance {
+      font-size: 20px; font-weight: 600; color: #4f4f4f; letter-spacing: 0.25px;
+    }
+    .sm-wallet-bottom {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px 14px;
+      /* border-top: 1px solid #e7eefc; */
+      margin-top: 8px; padding-top: 10px;
+    }
+    .sm-expiry-text {
+      font-size: 12px; font-weight: 500; color: #909090; letter-spacing: 0.25px; line-height: 18px;
+    }
+    .sm-expiry-date { font-weight: 600; }
+    .sm-expiry-date.red    { color: #f05555; }
+    .sm-expiry-date.orange { color: #ea7d15; }
+    .sm-expiry-date.gray   { color: #909090; }
+    /* Enter button — mirrors .btn-primary */
+    .sm-enter-btn {
+      background: #0d57e2; color: #fff;
+      border: none; border-radius: 24px;
+      height: 36px; padding: 0 20px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 14px; font-weight: 600; letter-spacing: 0.25px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.12s;
+    }
+    .sm-enter-btn:active { opacity: 0.82; }
+
+    /* Travel Pass card — same border style */
+    .sm-travel-card {
+      border: 1px solid #e7eefc;
+      border-radius: 16px; padding: 14px 16px;
+    }
+    .sm-travel-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .sm-travel-label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 16px; font-weight: 600; color: #3f9688; letter-spacing: 0.25px;
+    }
+    .sm-travel-icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .sm-travel-desc {
+      font-size: 12px; font-weight: 500; color: #909090;
+      letter-spacing: 0.25px; line-height: 18px; margin-bottom: 12px;
+    }
+    .sm-explore-btn {
+      width: 100%; height: 36px;
+      background: #0d57e2; color: #fff;
+      border: none; border-radius: 24px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 14px; font-weight: 600; letter-spacing: 0.25px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.12s;
+    }
+    .sm-explore-btn:active { opacity: 0.82; }
+
+    /* ── Menu list (matches .payment-list style) ── */
+    .sm-menu {
+      margin-top: 8px; padding: 0 0 80px;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+    .sm-menu-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 15px 20px;
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: background 0.1s;
+    }
+    .sm-menu-item:active { background: rgba(0,0,0,0.03); }
+    .sm-menu-left {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .sm-menu-icon {
+      width: 20px; height: 20px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #909090;
+    }
+    .sm-menu-text {
+      font-size: 14px; font-weight: 500; color: #4f4f4f; letter-spacing: 0.25px; line-height: 22px;
+    }
+    /* Badge — mirrors .default-chip style */
+    .sm-badge {
+      font-size: 10px; font-weight: 500; letter-spacing: 0.25px; line-height: 18px;
+      padding: 0 8px; border-radius: 99px; white-space: nowrap;
+    }
+    .sm-badge.new { background: #e7eefc; color: #0d57e2; }
+    .sm-badge.hot { background: #fde8e8; color: #f05555; }
+
+    /* Home indicator */
+    .sm-home-indicator {
+      position: fixed; bottom: 14px; left: 0; width: 338px;
+      display: flex; justify-content: center; pointer-events: none;
+    }
+    .sm-home-indicator-bar {
+      width: 110px; height: 4px;
+      background: #4f4f4f; border-radius: 2px; opacity: 0.18;
+    }
   </style>
 </head>
 <body>
 <div class="phone">
 
-  <!-- Map screen image -->
-  <img class="screen-img active" id="img-map"
-    src="https://www.figma.com/api/mcp/asset/81ecb736-4993-4f28-a412-2a31ee38481e"
-    alt="Map">
+  <!-- Map screen (local HTML, no external Figma asset) -->
+  <div class="screen-img active" id="img-map" style="display:block; position:absolute; inset:0; width:100%; height:100%; overflow:hidden;">
 
-  <!-- Side menu screen image -->
-  <img class="screen-img" id="img-sidemenu"
-    src="https://www.figma.com/api/mcp/asset/7dd6c237-b296-4f26-beb5-fe2538df8446"
-    alt="Side menu">
+    <!-- Map base -->
+    <svg width="393" height="852" viewBox="0 0 393 852" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;">
+      <!-- Sky/background -->
+      <rect width="393" height="852" fill="#e8e0d8"/>
+      <!-- Main roads -->
+      <rect x="0" y="200" width="393" height="28" fill="#fff" opacity="0.9"/>
+      <rect x="0" y="460" width="393" height="22" fill="#fff" opacity="0.9"/>
+      <rect x="0" y="640" width="393" height="18" fill="#fff" opacity="0.85"/>
+      <rect x="120" y="0" width="30" height="852" fill="#fff" opacity="0.9"/>
+      <rect x="280" y="0" width="24" height="852" fill="#fff" opacity="0.85"/>
+      <!-- Secondary roads -->
+      <rect x="0" y="320" width="393" height="12" fill="#fff" opacity="0.7"/>
+      <rect x="0" y="540" width="393" height="10" fill="#fff" opacity="0.65"/>
+      <rect x="0" y="730" width="393" height="10" fill="#fff" opacity="0.6"/>
+      <rect x="55" y="0" width="14" height="852" fill="#fff" opacity="0.65"/>
+      <rect x="210" y="0" width="12" height="852" fill="#fff" opacity="0.6"/>
+      <rect x="340" y="0" width="12" height="852" fill="#fff" opacity="0.6"/>
+      <!-- Parks / green areas -->
+      <rect x="135" y="230" width="130" height="80" rx="8" fill="#c8dfc0" opacity="0.9"/>
+      <rect x="0" y="340" width="105" height="110" rx="6" fill="#c8dfc0" opacity="0.8"/>
+      <rect x="310" y="486" width="83" height="140" rx="6" fill="#c8dfc0" opacity="0.8"/>
+      <rect x="135" y="560" width="135" height="70" rx="6" fill="#c8dfc0" opacity="0.75"/>
+      <!-- Buildings / blocks -->
+      <rect x="135" y="120" width="60" height="72" rx="4" fill="#d4ccc4" opacity="0.9"/>
+      <rect x="200" y="130" width="74" height="62" rx="4" fill="#ccc4bc" opacity="0.85"/>
+      <rect x="310" y="120" width="83" height="72" rx="4" fill="#d0c8c0" opacity="0.85"/>
+      <rect x="0" y="120" width="108" height="72" rx="4" fill="#ccc4bc" opacity="0.85"/>
+      <rect x="0" y="490" width="108" height="140" rx="4" fill="#d4ccc4" opacity="0.8"/>
+      <rect x="135" y="490" width="130" height="62" rx="4" fill="#ccc4bc" opacity="0.8"/>
+      <rect x="0" y="660" width="108" height="80" rx="4" fill="#d0c8c0" opacity="0.8"/>
+      <rect x="135" y="660" width="130" height="70" rx="4" fill="#ccc4bc" opacity="0.8"/>
+      <rect x="310" y="660" width="83" height="80" rx="4" fill="#d4ccc4" opacity="0.75"/>
+      <rect x="135" y="760" width="130" height="70" rx="4" fill="#ccc4bc" opacity="0.75"/>
+      <rect x="0" y="760" width="108" height="70" rx="4" fill="#d0c8c0" opacity="0.75"/>
+      <rect x="310" y="760" width="83" height="70" rx="4" fill="#d4ccc4" opacity="0.7"/>
+      <!-- Water body -->
+      <ellipse cx="80" cy="620" rx="55" ry="30" fill="#b8d4e8" opacity="0.7"/>
+    </svg>
+
+    <!-- Status bar -->
+    <div style="position:absolute;top:0;left:0;right:0;height:44px;background:rgba(255,255,255,0.88);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:space-between;padding:0 20px 0 48px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:600;color:#4f4f4f;">
+      <span>9:41</span>
+      <span style="font-size:13px;">▲▲▲ ◀ 98</span>
+    </div>
+
+    <!-- Menu button (hamburger) -->
+    <div style="position:absolute;top:56px;left:16px;width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;">
+      <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="18" height="2" rx="1" fill="#4f4f4f"/>
+        <rect y="6" width="18" height="2" rx="1" fill="#4f4f4f"/>
+        <rect y="12" width="18" height="2" rx="1" fill="#4f4f4f"/>
+      </svg>
+    </div>
+
+    <!-- MuvMi logo pill -->
+    <div style="position:absolute;top:56px;left:66px;background:#0d57e2;border-radius:20px;padding:6px 14px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(13,87,226,0.3);">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" fill="white" opacity="0.25"/><circle cx="8" cy="8" r="3" fill="white"/></svg>
+      <span style="font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;color:#fff;letter-spacing:0.5px;">MuvMi</span>
+    </div>
+
+    <!-- Area chip -->
+    <div style="position:absolute;top:56px;right:16px;background:#fff;border-radius:20px;padding:6px 12px;box-shadow:0 2px 8px rgba(0,0,0,0.14);font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;color:#4f4f4f;display:flex;align-items:center;gap:4px;">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1C4.34 1 3 2.34 3 4c0 2.38 3 7 3 7s3-4.62 3-7c0-1.66-1.34-3-3-3Z" stroke="#0d57e2" stroke-width="1.2"/><circle cx="6" cy="4" r="1.2" stroke="#0d57e2" stroke-width="1.2"/></svg>
+      Silom
+    </div>
+
+    <!-- Current location marker -->
+    <div style="position:absolute;top:380px;left:185px;">
+      <div style="width:24px;height:24px;border-radius:50%;background:#0d57e2;border:3px solid #fff;box-shadow:0 2px 8px rgba(13,87,226,0.4);"></div>
+      <div style="width:48px;height:48px;border-radius:50%;background:rgba(13,87,226,0.15);position:absolute;top:-12px;left:-12px;"></div>
+    </div>
+
+    <!-- Nearby vehicle markers -->
+    <div style="position:absolute;top:310px;left:240px;">
+      <div style="background:#fff;border-radius:12px;padding:4px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.15);font-family:'Sarabun',sans-serif;font-size:11px;font-weight:600;color:#0d57e2;white-space:nowrap;">🚐 2 min</div>
+    </div>
+    <div style="position:absolute;top:440px;left:100px;">
+      <div style="background:#fff;border-radius:12px;padding:4px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.15);font-family:'Sarabun',sans-serif;font-size:11px;font-weight:600;color:#0d57e2;white-space:nowrap;">🚐 5 min</div>
+    </div>
+
+    <!-- Bottom card -->
+    <div style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:24px 24px 0 0;padding:12px 20px 36px;box-shadow:0 -4px 24px rgba(0,0,0,0.10);">
+      <div style="width:36px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 16px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;color:#4f4f4f;">Silom — Siam</div>
+          <div style="font-family:'Sarabun',sans-serif;font-size:12px;font-weight:400;color:#909090;margin-top:2px;">3 vehicles nearby</div>
+        </div>
+        <div style="background:#0d57e2;border-radius:20px;padding:8px 20px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:#fff;">Book</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;background:#f5f5f5;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#909090" stroke-width="1.4"/><path d="M8 5v3.5l2 1.2" stroke="#909090" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span style="font-family:'Sarabun',sans-serif;font-size:12px;color:#909090;">~8 min</span>
+        </div>
+        <div style="flex:1;background:#f5f5f5;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="10" rx="2" stroke="#909090" stroke-width="1.4"/><path d="M1 7h14" stroke="#909090" stroke-width="1.4"/><circle cx="11.5" cy="10" r="1" fill="#909090"/></svg>
+          <span style="font-family:'Sarabun',sans-serif;font-size:12px;color:#909090;">900 ฿</span>
+        </div>
+        <div style="flex:1;background:#f5f5f5;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l5-5 3 3 4-5" stroke="#909090" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span style="font-family:'Sarabun',sans-serif;font-size:12px;color:#909090;">1.2 km</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Home indicator -->
+    <div style="position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;">
+      <div style="width:110px;height:4px;background:#4f4f4f;border-radius:2px;opacity:0.18;"></div>
+    </div>
+
+  </div>
+
+  <!-- Dynamic Side Menu -->
+  <div class="side-menu" id="side-menu">
+    <!-- Map background peek -->
+    <div class="side-menu-map-bg"></div>
+
+    <!-- White panel -->
+    <div class="side-menu-panel">
+
+      <!-- Status bar -->
+      <div class="sm-statusbar">
+        <span>9:41</span>
+        <span style="font-size:13px;">▲▲▲ ◀ 98</span>
+      </div>
+
+      <!-- Profile -->
+      <div class="sm-profile">
+        <div class="sm-avatar">M</div>
+        <div class="sm-profile-info">
+          <span class="sm-phone">+66839618989</span>
+          <span class="sm-gang-badge">MuvGang ›</span>
+        </div>
+      </div>
+
+      <!-- Cards -->
+      <div class="sm-cards">
+
+        <!-- Wallet Card -->
+        <div class="sm-wallet-card">
+          <div class="sm-wallet-top">
+            <div class="sm-wallet-label">
+              <svg class="sm-wallet-icon" viewBox="0 0 16 16" fill="none">
+                <rect x="1" y="4" width="14" height="10" rx="2" stroke="#0d57e2" stroke-width="1.3"/>
+                <path d="M1 7h14" stroke="#0d57e2" stroke-width="1.3"/>
+                <circle cx="11.5" cy="10" r="1" fill="#0d57e2"/>
+              </svg>
+              My Wallet
+            </div>
+            <span class="sm-wallet-balance" id="sm-balance">— ฿</span>
+          </div>
+          <div class="sm-wallet-bottom">
+            <span class="sm-expiry-text" id="sm-expiry-text">—</span>
+            <button class="sm-enter-btn" onclick="window.location.href='wallet-app.html'">Enter</button>
+          </div>
+        </div>
+
+        <!-- Travel Pass Card -->
+        <div class="sm-travel-card">
+          <div class="sm-travel-top">
+            <div class="sm-travel-label">
+              <svg class="sm-travel-icon" viewBox="0 0 16 16" fill="none">
+                <path d="M8 1.5C5.51 1.5 3.5 3.51 3.5 6c0 3.19 4.5 8.5 4.5 8.5S12.5 9.19 12.5 6c0-2.49-2.01-4.5-4.5-4.5Z" stroke="#3f9688" stroke-width="1.3"/>
+                <circle cx="8" cy="6" r="1.5" stroke="#3f9688" stroke-width="1.3"/>
+              </svg>
+              Travel Pass
+            </div>
+          </div>
+          <p class="sm-travel-desc">Unlimited day pass ideal for tourists.</p>
+          <button class="sm-explore-btn">Explore Pass</button>
+        </div>
+
+      </div>
+
+      <!-- Menu Items -->
+      <div class="sm-menu">
+        <!-- Inbox -->
+        <div class="sm-menu-item">
+          <div class="sm-menu-left">
+            <span class="sm-menu-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M3 4h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M2 5.5l8 5 8-5" stroke="currentColor" stroke-width="1.4"/>
+              </svg>
+            </span>
+            <span class="sm-menu-text">Inbox</span>
+          </div>
+        </div>
+        <!-- History -->
+        <div class="sm-menu-item">
+          <div class="sm-menu-left">
+            <span class="sm-menu-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M10 6v4.5l3 1.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="sm-menu-text">History</span>
+          </div>
+        </div>
+        <!-- Change Area -->
+        <div class="sm-menu-item">
+          <div class="sm-menu-left">
+            <span class="sm-menu-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2C7.24 2 5 4.24 5 7c0 3.96 5 11 5 11s5-7.04 5-11c0-2.76-2.24-5-5-5Z" stroke="currentColor" stroke-width="1.4"/>
+                <circle cx="10" cy="7" r="2" stroke="currentColor" stroke-width="1.4"/>
+              </svg>
+            </span>
+            <span class="sm-menu-text">Change Area</span>
+          </div>
+        </div>
+        <!-- Local Deals -->
+        <div class="sm-menu-item">
+          <div class="sm-menu-left">
+            <span class="sm-menu-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <rect x="2.5" y="5.5" width="15" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M6.5 5.5V4a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v1.5" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M2.5 9.5h15" stroke="currentColor" stroke-width="1.4"/>
+              </svg>
+            </span>
+            <span class="sm-menu-text">Local Deals</span>
+          </div>
+          <span class="sm-badge new">New</span>
+        </div>
+        <!-- Voucher Code -->
+        <div class="sm-menu-item">
+          <div class="sm-menu-left">
+            <span class="sm-menu-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <rect x="2" y="6" width="16" height="8" rx="2" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M7 10h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <path d="M7 10a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" fill="currentColor"/>
+                <path d="M13 10a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z" fill="currentColor"/>
+              </svg>
+            </span>
+            <span class="sm-menu-text">Voucher Code</span>
+          </div>
+        </div>
+        <!-- Referral Bonus -->
+        <div class="sm-menu-item">
+          <div class="sm-menu-left">
+            <span class="sm-menu-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L10 12.5l-4.2 2.5.8-4.7L3.2 7l4.7-.7L10 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="sm-menu-text">Referral Bonus</span>
+          </div>
+          <span class="sm-badge hot">Hot</span>
+        </div>
+        <!-- Private Service -->
+        <div class="sm-menu-item">
+          <div class="sm-menu-left">
+            <span class="sm-menu-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M3.5 17c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <path d="M13.5 4l1 1.5L16 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="sm-menu-text">Private Service</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sm-home-indicator">
+        <div class="sm-home-indicator-bar"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- btn-menu hotspot: left:23 top:104 size:64×64 (matches Figma node 1911:7950) -->
   <button class="hotspot" id="btn-menu"
@@ -66,36 +504,103 @@
     onclick="showSideMenu()">
   </button>
 
-  <!-- Wallet card hotspot on side menu: left:25 top:242 size:305×180 -->
-  <button class="hotspot" id="btn-wallet-card"
-    style="left:25px; top:160px; width:305px; height: 120px; display:none; border-radius:16px;"
-    onclick="window.location.href='wallet-app.html'">
-  </button>
-
   <!-- Dim-area hotspot on side menu (right portion) to close -->
   <button class="hotspot" id="btn-close"
-    style="left:330px; top:0; width:63px; height:852px; display:none;"
+    style="left:338px; top:0; width:55px; height:852px; display:none;"
     onclick="showMap()">
   </button>
 
 </div>
 
 <script>
+  /* ── Read wallet state from localStorage ─────────────────────────────── */
+  function getWalletState() {
+    try {
+      return JSON.parse(localStorage.getItem('muvmi_wallet')) || null;
+    } catch { return null; }
+  }
+
+  function parseExpiry(str) {
+    // "d/m/yyyy"
+    const [d, m, y] = str.split('/').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  function expiryColor(dateStr) {
+    const exp = parseExpiry(dateStr);
+    const now = new Date();
+    const daysLeft = Math.ceil((exp - now) / 86400000);
+    if (daysLeft <= 30)  return 'red';
+    if (daysLeft <= 60)  return 'orange';
+    return 'gray';
+  }
+
+  function formatExpiryDate(str) {
+    // "31/4/2026" → "31 Apr 2026"
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const [d, m, y] = str.split('/').map(Number);
+    return `${d} ${months[m - 1]} ${y}`;
+  }
+
+  function renderSideMenuWallet() {
+    const wallet = getWalletState();
+    const balanceEl  = document.getElementById('sm-balance');
+    const expiryEl   = document.getElementById('sm-expiry-text');
+
+    if (!wallet) {
+      balanceEl.textContent = '— ฿';
+      expiryEl.innerHTML = '';
+      return;
+    }
+
+    // ① Balance — same as payment method screen
+    balanceEl.textContent = wallet.walletBalance + ' ฿';
+
+    // ② Earliest expiry voucher (sort by expiry date ascending)
+    const sorted = [...wallet.vouchers]
+      .filter(v => v.expiry)
+      .sort((a, b) => parseExpiry(a.expiry) - parseExpiry(b.expiry));
+
+    if (sorted.length === 0) {
+      expiryEl.innerHTML = '';
+      return;
+    }
+
+    const earliest = sorted[0];
+    const color    = expiryColor(earliest.expiry);
+    const dateStr  = formatExpiryDate(earliest.expiry);
+
+    expiryEl.innerHTML =
+      `${earliest.amount} ฿ expires ` +
+      `<span class="sm-expiry-date ${color}">${dateStr}</span>`;
+  }
+
+  /* ── Show / hide side menu ───────────────────────────────────────────── */
   function showSideMenu() {
+    renderSideMenuWallet();
     document.getElementById('img-map').classList.remove('active');
-    document.getElementById('img-sidemenu').classList.add('active');
+    document.getElementById('side-menu').classList.add('active');
     document.getElementById('btn-menu').style.display = 'none';
     document.getElementById('btn-close').style.display = 'block';
-    document.getElementById('btn-wallet-card').style.display = 'block';
   }
 
   function showMap() {
-    document.getElementById('img-sidemenu').classList.remove('active');
+    document.getElementById('side-menu').classList.remove('active');
     document.getElementById('img-map').classList.add('active');
     document.getElementById('btn-close').style.display = 'none';
-    document.getElementById('btn-wallet-card').style.display = 'none';
     document.getElementById('btn-menu').style.display = 'block';
   }
+
+  /* ── Auto-sync balance when wallet-app.html changes data ────────────── */
+
+  // Cross-tab sync: fires when localStorage changes in another tab
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'muvmi_wallet') renderSideMenuWallet();
+  });
+
+  // Same-tab sync: user returns from wallet-app.html via browser back
+  window.addEventListener('pageshow', renderSideMenuWallet);
+  window.addEventListener('focus',    renderSideMenuWallet);
 </script>
 </body>
 </html>
