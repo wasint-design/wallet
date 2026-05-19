@@ -145,18 +145,41 @@
     }
     .wallet-default-chip.show { display: block; }
     .card-amount { font-size: 32px; font-weight: 700; color: #4f4f4f; letter-spacing: 0.25px; line-height: 48px; text-align: center; margin-top: 24px; padding-bottom: 8px; }
-    .card-chevron-row { display: flex; align-items: center; justify-content: center; padding: 4px 0 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-    .card-chevron-icon { transition: transform 0.25s ease; }
-    .balance-card.expanded .card-chevron-icon { transform: rotate(180deg); }
-    .card-detail { display: none; border-top: 1px solid #e7eefc; }
-    .balance-card.expanded .card-detail { display: block; }
-    .detail-header-row { background: #e7eefc; display: flex; align-items: center; justify-content: space-between; padding: 4px 16px; font-size: 14px; font-weight: 500; color: #909090; letter-spacing: 0.25px; line-height: 22px; white-space: nowrap; }
-    .detail-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px; }
-    .detail-left { display: flex; align-items: center; gap: 40px; }
-    .detail-amount, .detail-name { font-size: 14px; font-weight: 500; color: #4f4f4f; letter-spacing: 0.25px; line-height: 22px; white-space: nowrap; }
-    .detail-amount { min-width: 44px; }
-    .detail-expiry { font-size: 14px; font-weight: 500; color: #f05555; letter-spacing: 0.25px; line-height: 22px; white-space: nowrap; }
-    .detail-divider { height: 1px; background: rgba(0,0,0,0.08); margin: 0 16px; }
+    /* Summary row inside the balance card */
+    .card-summary-row {
+      display: flex; align-items: center; justify-content: center;
+      position: relative; padding: 8px 15px 15px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent; gap: 4px;
+    }
+    .card-summary-text {
+      font-size: 14px; font-weight: 500; color: #909090;
+      letter-spacing: 0.25px; line-height: 22px; white-space: nowrap;
+    }
+    .card-summary-chevron {
+      width: 16px; height: 16px; background: #e7eefc;
+      border-radius: 99px; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Wallet detail bottom sheet */
+    .wallet-detail-sheet { gap: 16px; padding: 24px 16px; max-height: 80vh; overflow-y: auto; }
+    .wds-header { text-align: center; margin-bottom: 8px; }
+    .wds-title { font-size: 16px; font-weight: 600; color: #0d57e2; letter-spacing: 0.25px; line-height: 24px; }
+    .wds-subtitle { font-size: 14px; font-weight: 500; color: #909090; letter-spacing: 0.25px; line-height: 22px; }
+    .wds-section { border: 1px solid #e7eefc; border-radius: 16px; overflow: hidden; }
+    .wds-section-row { display: flex; align-items: center; justify-content: space-between; padding: 16px; }
+    .wds-section-label { font-size: 16px; font-weight: 600; color: #4f4f4f; letter-spacing: 0.25px; line-height: 24px; }
+    .wds-section-value { font-size: 14px; font-weight: 500; color: #4f4f4f; letter-spacing: 0.25px; line-height: 22px; }
+    .wds-table-header { background: #e7eefc; display: flex; align-items: center; justify-content: space-between; padding: 4px 16px; font-size: 14px; font-weight: 500; color: #909090; letter-spacing: 0.25px; line-height: 22px; white-space: nowrap; }
+    .wds-table-note { font-size: 12px; font-weight: 500; color: #909090; letter-spacing: 0.25px; line-height: 18px; padding: 4px 16px; }
+    .wds-table-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px; }
+    #wds-voucher-rows { max-height: 136px; overflow-y: auto; }
+    .wds-row-left { display: flex; align-items: center; gap: 40px; }
+    .wds-row-amount, .wds-row-name { font-size: 14px; font-weight: 500; color: #4f4f4f; letter-spacing: 0.25px; line-height: 22px; white-space: nowrap; }
+    .wds-row-amount { min-width: 44px; }
+    .wds-row-expiry { font-size: 14px; font-weight: 500; letter-spacing: 0.25px; line-height: 22px; white-space: nowrap; }
+    .wds-row-expiry.expired { color: #f05555; }
+    .wds-divider { height: 1px; background: rgba(0,0,0,0.08); margin: 0 16px; }
     .btn-primary, .btn-outline {
       width: 100%; height: 44px;
       font-family: 'Sarabun', sans-serif; font-size: 18px; font-weight: 600;
@@ -739,18 +762,21 @@
           </div>
           <div class="card-amount" id="wallet-balance-display">— ฿</div>
         </div>
-        <div class="card-chevron-row" onclick="toggleExpand()">
-          <svg class="card-chevron-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M4 6L8 10L12 6" stroke="#4f4f4f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <!-- Expanded detail -->
-        <div class="card-detail">
-          <div class="detail-header-row">
-            <span>Amount</span>
-            <span>Expiry date</span>
+        <div class="card-summary-row" onclick="openWalletDetail()">
+          <span class="card-summary-text" id="wallet-summary-text">Topup — ฿  ·  Voucher — ฿</span>
+          <div class="card-summary-chevron">
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+              <path d="M1 1L5 5L9 1" stroke="#0d57e2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </div>
-          <div id="wallet-detail-rows"></div>
+        </div>
+      </div>
+
+      <!-- Set as default payment -->
+      <div class="toggle-row" style="margin-top:32px;">
+        <span class="toggle-label">Set as default payment</span>
+        <div class="toggle-track" id="wallet-toggle-track" onclick="toggleWalletDefault()">
+          <div class="toggle-thumb"></div>
         </div>
       </div>
 
@@ -758,14 +784,6 @@
       <div style="margin-top:32px; display:flex; flex-direction:column; gap:16px;">
         <button class="btn-primary" onclick="navigate('topup')">Topup</button>
         <button class="btn-outline" onclick="navigate('voucher')">Voucher</button>
-      </div>
-
-      <!-- Set as default payment -->
-      <div class="toggle-row" style="margin-top:40px;">
-        <span class="toggle-label">Set as default payment</span>
-        <div class="toggle-track" id="wallet-toggle-track" onclick="toggleWalletDefault()">
-          <div class="toggle-thumb"></div>
-        </div>
       </div>
     </div>
   </div>
@@ -1202,11 +1220,40 @@
     </div>
   </div>
 
+  <!-- ── Wallet Detail Bottom Sheet ── -->
+  <div class="sheet-overlay" id="wallet-detail-overlay" onclick="if(event.target===this)closeWalletDetail()">
+    <div class="bottom-sheet wallet-detail-sheet">
+      <div class="wds-header">
+        <div class="wds-title">Your wallet detail</div>
+        <div class="wds-subtitle">Your wallet balance includes both Topup and Voucher.</div>
+      </div>
+      <div class="wds-section">
+        <div class="wds-section-row">
+          <span class="wds-section-label">Topup amount</span>
+          <span class="wds-section-value" id="wds-topup-amount">— ฿</span>
+        </div>
+      </div>
+      <div class="wds-section">
+        <div class="wds-section-row">
+          <span class="wds-section-label">Voucher amount</span>
+          <span class="wds-section-value" id="wds-voucher-total">— ฿</span>
+        </div>
+        <div class="wds-table-header">
+          <span>Amount</span>
+          <span>Expiry date</span>
+        </div>
+        <div class="wds-table-note">*Amount with the earliest expiry date will be used first</div>
+        <div id="wds-voucher-rows"></div>
+      </div>
+      <button class="btn-primary" onclick="closeWalletDetail()">Close</button>
+    </div>
+  </div>
+
   <!-- ── Change Default Payment Bottom Sheet ── -->
   <div class="sheet-overlay" id="cdp-sheet-overlay" onclick="if(event.target===this)closeCdpSheet()">
     <div class="bottom-sheet" style="gap:20px; padding:24px 20px;">
       <div>
-        <div class="cdp-sheet-title">Change your default payment</div>
+        <div class="cdp-sheet-title" id="cdp-sheet-title">Change your default payment</div>
         <div class="cdp-sheet-subtitle">Set your payment method below</div>
       </div>
       <div class="cdp-radio-list" id="cdp-radio-list">
@@ -1280,20 +1327,20 @@
 
   function saveWalletState() {
     localStorage.setItem('muvmi_wallet', JSON.stringify({
-      walletBalance: state.walletBalance,
-      topupTotal:    state.topupTotal,
-      vouchers:      state.vouchers
+      walletBalance:  state.walletBalance,
+      topupTotal:     state.topupTotal,
+      vouchers:       state.vouchers,
+      defaultPayment: state.defaultPayment
     }));
   }
 
   /* ─── App State — load from store, fall back to defaults ────────────── */
   const _stored = loadWalletStore();
   const state = {
-    defaultPayment: 'wallet',
-    walletExpanded: false,
-    walletBalance: _stored?.walletBalance ?? WALLET_DEFAULTS.walletBalance,
-    topupTotal:    _stored?.topupTotal    ?? WALLET_DEFAULTS.topupTotal,
-    vouchers:      _stored?.vouchers      ?? WALLET_DEFAULTS.vouchers,
+    defaultPayment: _stored?.defaultPayment ?? 'wallet',
+    walletBalance:  _stored?.walletBalance ?? WALLET_DEFAULTS.walletBalance,
+    topupTotal:     _stored?.topupTotal    ?? WALLET_DEFAULTS.topupTotal,
+    vouchers:       _stored?.vouchers      ?? WALLET_DEFAULTS.vouchers,
   };
 
   // Write defaults to store on first launch
@@ -1380,6 +1427,11 @@
   function renderWallet() {
     syncAllBalances();
 
+    // Update summary text on the card
+    const voucherTotal = state.vouchers.reduce((s, v) => s + v.amount, 0);
+    document.getElementById('wallet-summary-text').textContent =
+      `Topup ${state.topupTotal} ฿  ·  Voucher ${voucherTotal} ฿`;
+
     // Sort vouchers by earliest expiry first
     const sorted = [...state.vouchers].sort((a, b) => {
       if (!a.expiry && !b.expiry) return 0;
@@ -1388,43 +1440,32 @@
       return parseExpiry(a.expiry) - parseExpiry(b.expiry);
     });
 
+    // Populate wallet detail bottom sheet
+    document.getElementById('wds-topup-amount').textContent = state.topupTotal + ' ฿';
+    document.getElementById('wds-voucher-total').textContent = voucherTotal + ' ฿';
+
     let html = '';
-    let rowIdx = 0;
-
-    // Voucher rows
-    sorted.forEach(v => {
-      if (rowIdx > 0) html += '<div class="detail-divider"></div>';
-      html += `<div class="detail-row">
-        <div class="detail-left">
-          <span class="detail-amount">${v.amount} ฿</span>
-          <span class="detail-name">${v.name}</span>
+    sorted.forEach((v, idx) => {
+      if (idx > 0) html += '<div class="wds-divider"></div>';
+      const isEarliest = idx === 0;
+      html += `<div class="wds-table-row">
+        <div class="wds-row-left">
+          <span class="wds-row-amount">${v.amount} ฿</span>
+          <span class="wds-row-name">${v.name}</span>
         </div>
-        <span class="detail-expiry">${v.expiry || '–'}</span>
+        <span class="wds-row-expiry ${isEarliest ? 'expired' : ''}">${v.expiry || '–'}</span>
       </div>`;
-      rowIdx++;
     });
-
-    // Single consolidated Topup row
-    if (state.topupTotal > 0) {
-      if (rowIdx > 0) html += '<div class="detail-divider"></div>';
-      html += `<div class="detail-row">
-        <div class="detail-left">
-          <span class="detail-amount">${state.topupTotal} ฿</span>
-          <span class="detail-name">Topup</span>
-        </div>
-        <span class="detail-expiry">–</span>
-      </div>`;
-    }
-
-    // Red footnote
-    html += '<div style="padding:8px 16px 10px;"><span style="font-size:12px;font-weight:500;color:#f05555;letter-spacing:0.25px;line-height:18px;">*Amount with the earliest expiry date will be used first</span></div>';
-
-    document.getElementById('wallet-detail-rows').innerHTML = html;
+    document.getElementById('wds-voucher-rows').innerHTML = html;
   }
 
-  function toggleExpand() {
-    state.walletExpanded = !state.walletExpanded;
-    document.getElementById('balance-card').classList.toggle('expanded', state.walletExpanded);
+  function openWalletDetail() {
+    renderWallet();
+    document.getElementById('wallet-detail-overlay').classList.add('show');
+  }
+
+  function closeWalletDetail() {
+    document.getElementById('wallet-detail-overlay').classList.remove('show');
   }
 
   function toggleWalletDefault() {
@@ -1530,15 +1571,19 @@
   }
 
   function confirmDelete() {
+    const deletedId = activeCardId;
+    const wasDefault = state.defaultPayment === deletedId;
     // Remove card row from Payment Methods
-    const row = document.querySelector('[data-card="' + activeCardId + '"]');
+    const row = document.querySelector('[data-card="' + deletedId + '"]');
     if (row) row.remove();
     // Clear default if this card was default
-    if (state.defaultPayment === activeCardId) state.defaultPayment = null;
+    if (wasDefault) state.defaultPayment = null;
     activeCardId = null;
     document.getElementById('delete-sheet-overlay').classList.remove('show');
     navigate('payment-methods');
     showToast('Card removed');
+    // If deleted card was the default, prompt user to pick a new one
+    if (wasDefault) openCdpSheet(null, true);
   }
 
   function cancelDelete() {
@@ -1546,8 +1591,9 @@
   }
 
   /* ─── Change Default Payment Sheet ─── */
-  let cdpContext = null;   // which payment was being toggled off ('wallet' | 'visa1234' | 'visa8888')
-  let cdpSelected = null;  // which radio is currently selected in the sheet
+  let cdpContext = null;    // which payment was being toggled off ('wallet' | 'visa1234' | 'visa8888')
+  let cdpSelected = null;   // which radio is currently selected in the sheet
+  let cdpPostDelete = false; // true when opened after deleting the default card
 
   // All known payment methods (only include cards still in DOM)
   function cdpPaymentMethods() {
@@ -1560,16 +1606,26 @@
     return methods;
   }
 
-  function openCdpSheet(turningOffId) {
+  function openCdpSheet(turningOffId, postDelete = false) {
+    cdpPostDelete = postDelete;
     cdpContext = turningOffId;
-    cdpSelected = turningOffId; // pre-select the one being toggled off
+    if (postDelete) {
+      // Pre-select first available method
+      cdpSelected = cdpPaymentMethods()[0]?.id ?? null;
+      document.getElementById('cdp-sheet-title').textContent = 'Select your default payment';
+    } else {
+      cdpSelected = turningOffId; // pre-select the one being toggled off
+      document.getElementById('cdp-sheet-title').textContent = 'Change your default payment';
+    }
     renderCdpSheet();
     document.getElementById('cdp-sheet-overlay').classList.add('show');
   }
 
   function closeCdpSheet() {
+    cdpPostDelete = false;
     document.getElementById('cdp-sheet-overlay').classList.remove('show');
-    // toggle stays ON (no change to state.defaultPayment)
+    // In normal mode: toggle stays ON (no change to state.defaultPayment)
+    // In post-delete mode: state is already null, just sync UI
     syncWalletToggle();
     syncCardDetailUI();
   }
@@ -1618,6 +1674,7 @@
 
   function syncPaymentMethodDefaults() {
     updateDefaultChips();
+    saveWalletState();
   }
 
   /* ─── Add Card Screen ─── */
@@ -1845,6 +1902,14 @@
 
   /* ─── Init ─── */
   updateDefaultChips();
+
+  /* ─── Deep-link via URL param (?screen=topup | add-card) ─── */
+  (function() {
+    const param = new URLSearchParams(window.location.search).get('screen');
+    if (param === 'topup')    navigate('topup');
+    if (param === 'add-card') navigate('add-card');
+  })();
+
   renderWallet();
 </script>
 </body>
