@@ -97,6 +97,13 @@
       line-height: 30px; margin-bottom: 24px;
     }
     .payment-list { display: flex; flex-direction: column; gap: 32px; }
+    /* ── Payment Methods redesign ── */
+    .pm-sections { display: flex; flex-direction: column; gap: 32px; }
+    .pm-section  { display: flex; flex-direction: column; gap: 24px; }
+    .pm-section-header { display: flex; align-items: center; gap: 8px; }
+    .pm-section-icon   { width: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .pm-section-label  { font-size: 14px; font-weight: 600; color: #4f4f4f; letter-spacing: 0.25px; line-height: 22px; }
+    .pm-sub-list { padding-left: 36px; display: flex; flex-direction: column; gap: 32px; }
     .payment-row {
       display: flex; align-items: center;
       justify-content: space-between;
@@ -527,6 +534,13 @@
     .form-input::placeholder { color: #c8c8c8; }
     .form-input:focus { border-color: #0d57e2; }
     .form-row { display: flex; gap: 12px; }
+    .form-optional { font-size: 12px; font-weight: 400; color: #b0b0b0; margin-left: 4px; }
+    .gl-card-nickname {
+      font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.85);
+      letter-spacing: 0.6px; text-transform: uppercase;
+      line-height: 1.2; max-width: 120px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
     .form-row .form-group { flex: 1; }
     .add-card-btn-wrap { position: absolute; bottom: 40px; left: 16px; right: 16px; }
 
@@ -573,17 +587,36 @@
     .cdp-add-label { font-size: 15px; font-weight: 500; color: #4f4f4f; flex: 1; }
     .cdp-add-plus { font-size: 20px; font-weight: 400; color: #0d57e2; line-height: 1; }
 
-    /* ── Toast ── */
-    .toast {
-      position: fixed; bottom: 100px; left: 50%;
-      transform: translateX(-50%) translateY(10px);
-      background: rgba(0,0,0,0.75); color: #fff;
-      font-size: 13px; font-weight: 500;
-      padding: 8px 16px; border-radius: 20px;
-      opacity: 0; transition: opacity 0.2s, transform 0.2s;
-      pointer-events: none; white-space: nowrap;
+    /* ── Success Modal ── */
+    .success-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.22s ease;
     }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .success-overlay.show { opacity: 1; pointer-events: auto; }
+    .success-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 32px 28px 28px;
+      width: 280px;
+      text-align: center;
+      transform: scale(0.88);
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+    }
+    .success-overlay.show .success-card { transform: scale(1); }
+    .success-icon { display: flex; justify-content: center; margin-bottom: 20px; }
+    .success-header {
+      font-size: 17px; font-weight: 700;
+      color: #1d1d1f; line-height: 1.3; margin-bottom: 6px;
+    }
+    .success-desc {
+      font-size: 14px; font-weight: 400;
+      color: #636366; line-height: 1.5;
+    }
   </style>
 </head>
 <body>
@@ -614,103 +647,113 @@
         </svg>
       </div>
       <span class="nav-title">Payment methods</span>
-      <div class="nav-history">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <circle cx="10" cy="10" r="8.5" stroke="#4f4f4f" stroke-width="1.3"/>
-          <path d="M10 5.5V10L13 12" stroke="#4f4f4f" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M2.5 4.5L1 3M4.5 2.5L3 1" stroke="#4f4f4f" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
-      </div>
+      <div style="width:24px;"></div>
     </div>
 
     <div class="content">
-      <div class="section">
-        <div class="section-title">Linked Payment</div>
-        <div class="payment-list">
+      <div class="pm-sections">
 
-          <!-- Wallet → opens Wallet screen -->
-          <div class="payment-row" onclick="navigate('wallet')">
-            <div class="row-left">
-              <div class="icon-wrap">
-                <svg width="20" height="17" viewBox="0 0 20 17" fill="none">
-                  <rect x="0.7" y="0.7" width="18.6" height="15.6" rx="2.3" stroke="#4f4f4f" stroke-width="1.4"/>
-                  <path d="M0.7 5.5H19.3" stroke="#4f4f4f" stroke-width="1.4"/>
-                  <rect x="13" y="9" width="4.5" height="3" rx="1.5" fill="#4f4f4f"/>
-                </svg>
-              </div>
-              <span class="payment-name">Wallet</span>
-              <div class="default-chip" id="chip-wallet">Default</div>
-            </div>
-            <div class="row-right">
-              <span class="balance-text" id="pm-wallet-balance">— ฿</span>
-              <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M6 4L10 8L6 12" stroke="#4f4f4f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- ── Pay by Wallet ── -->
+        <div class="pm-section">
+          <div class="pm-section-header">
+            <div class="pm-section-icon">
+              <svg width="20" height="17" viewBox="0 0 20 17" fill="none">
+                <rect x="0.7" y="0.7" width="18.6" height="15.6" rx="2.3" stroke="#4f4f4f" stroke-width="1.4"/>
+                <path d="M0.7 5.5H19.3" stroke="#4f4f4f" stroke-width="1.4"/>
+                <rect x="13" y="9" width="4.5" height="3" rx="1.5" fill="#4f4f4f"/>
               </svg>
             </div>
+            <span class="pm-section-label">Pay by Wallet</span>
           </div>
-
-          <!-- Visa •• 1234 -->
-          <div class="payment-row" data-card="visa1234" onclick="openCardDetail('visa1234', '1234')">
-            <div class="row-left">
-              <div class="visa-logo">
-                <svg width="22" height="8" viewBox="0 0 22 8" fill="none">
-                  <path d="M8.2 7.4H6.6L7.6 0.6H9.2L8.2 7.4ZM5.4 0.6L3.9 5.2L3.7 4.2L3.1 1.2C3 0.9 2.7 0.6 2.3 0.6H0V0.7C0.8 0.9 1.6 1.2 2.2 1.7L3.6 7.4H5.3L7.9 0.6H5.4ZM19.6 0.6H18.1L15.5 7.4H17.1L17.5 6.3H19.5L19.7 7.4H21.2L19.6 0.6ZM17.9 5L18.7 2.7L19.1 5H17.9ZM14.1 2.1L14.3 0.8C13.9 0.6 13.3 0.5 12.7 0.5C11 0.5 9.8 1.4 9.8 2.7C9.8 3.7 10.7 4.2 11.4 4.5C12.1 4.8 12.3 5 12.3 5.3C12.3 5.7 11.9 5.9 11.4 5.9C10.7 5.9 10.3 5.8 9.7 5.5L9.5 5.4L9.3 6.8C9.7 7 10.4 7.1 11.1 7.1C12.9 7.1 14.1 6.2 14.1 4.8C14.1 4 13.6 3.5 12.5 3.1C11.9 2.8 11.5 2.6 11.5 2.3C11.5 2 11.9 1.7 12.5 1.7C13 1.7 13.4 1.8 13.8 2L14 2.1H14.1Z" fill="white"/>
+          <div class="pm-sub-list">
+            <div class="payment-row" onclick="navigate('wallet')">
+              <div class="row-left">
+                <div class="icon-wrap">
+                  <svg width="20" height="17" viewBox="0 0 20 17" fill="none">
+                    <rect width="20" height="17" rx="3" fill="#0d57e2"/>
+                    <path d="M0 5.5H20" stroke="white" stroke-width="1.4"/>
+                    <rect x="13" y="9" width="4.5" height="3" rx="1.5" fill="white"/>
+                  </svg>
+                </div>
+                <span class="payment-name" style="font-weight:600;">Your Wallet</span>
+              </div>
+              <div class="row-right">
+                <span class="balance-text" id="pm-wallet-balance">— ฿</span>
+                <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 4L10 8L6 12" stroke="#4f4f4f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
-              <span class="payment-name">Visa <span class="card-num">•• 1234</span></span>
-              <div class="default-chip" id="chip-visa1234">Default</div>
-            </div>
-            <div class="row-right">
-              <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M6 4L10 8L6 12" stroke="#4f4f4f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-          </div>
-
-          <!-- Visa •• 8888 -->
-          <div class="payment-row" data-card="visa8888" onclick="openCardDetail('visa8888', '8888')">
-            <div class="row-left">
-              <div class="visa-logo">
-                <svg width="22" height="8" viewBox="0 0 22 8" fill="none">
-                  <path d="M8.2 7.4H6.6L7.6 0.6H9.2L8.2 7.4ZM5.4 0.6L3.9 5.2L3.7 4.2L3.1 1.2C3 0.9 2.7 0.6 2.3 0.6H0V0.7C0.8 0.9 1.6 1.2 2.2 1.7L3.6 7.4H5.3L7.9 0.6H5.4ZM19.6 0.6H18.1L15.5 7.4H17.1L17.5 6.3H19.5L19.7 7.4H21.2L19.6 0.6ZM17.9 5L18.7 2.7L19.1 5H17.9ZM14.1 2.1L14.3 0.8C13.9 0.6 13.3 0.5 12.7 0.5C11 0.5 9.8 1.4 9.8 2.7C9.8 3.7 10.7 4.2 11.4 4.5C12.1 4.8 12.3 5 12.3 5.3C12.3 5.7 11.9 5.9 11.4 5.9C10.7 5.9 10.3 5.8 9.7 5.5L9.5 5.4L9.3 6.8C9.7 7 10.4 7.1 11.1 7.1C12.9 7.1 14.1 6.2 14.1 4.8C14.1 4 13.6 3.5 12.5 3.1C11.9 2.8 11.5 2.6 11.5 2.3C11.5 2 11.9 1.7 12.5 1.7C13 1.7 13.4 1.8 13.8 2L14 2.1H14.1Z" fill="white"/>
-                </svg>
-              </div>
-              <span class="payment-name">Visa <span class="card-num">•• 8888</span></span>
-              <div class="default-chip" id="chip-visa8888">Default</div>
-            </div>
-            <div class="row-right">
-              <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M6 4L10 8L6 12" stroke="#4f4f4f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Add payment</div>
-        <div class="payment-list">
-          <div class="payment-row" onclick="openAddCard('payment-methods')">
-            <div class="row-left">
-              <div class="icon-wrap">
-                <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-                  <rect x="0.7" y="0.7" width="18.6" height="14.6" rx="2.3" stroke="#4f4f4f" stroke-width="1.4"/>
-                  <path d="M0.7 5H19.3" stroke="#4f4f4f" stroke-width="1.4"/>
-                  <rect x="2.5" y="8.5" width="5" height="3" rx="1.5" fill="#4f4f4f"/>
-                </svg>
-              </div>
-              <span class="payment-name">Credit / Debit Card</span>
-            </div>
-            <div class="row-right">
-              <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M6 4L10 8L6 12" stroke="#4f4f4f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
             </div>
           </div>
         </div>
-      </div>
 
+        <!-- ── Pay by Credit / Debit card ── -->
+        <div class="pm-section">
+          <div class="pm-section-header">
+            <div class="pm-section-icon">
+              <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+                <rect x="0.7" y="0.7" width="18.6" height="14.6" rx="2.3" stroke="#4f4f4f" stroke-width="1.4"/>
+                <path d="M0.7 5H19.3" stroke="#4f4f4f" stroke-width="1.4"/>
+                <rect x="2.5" y="8.5" width="5" height="3" rx="1.5" fill="#4f4f4f"/>
+              </svg>
+            </div>
+            <span class="pm-section-label">Pay by Credit / Debit card</span>
+          </div>
+          <div class="pm-sub-list payment-list">
+
+            <!-- Visa •• 1234 -->
+            <div class="payment-row" data-card="visa1234" onclick="openCardDetail('visa1234', '1234')">
+              <div class="row-left">
+                <div class="visa-logo">
+                  <svg width="22" height="8" viewBox="0 0 22 8" fill="none">
+                    <path d="M8.2 7.4H6.6L7.6 0.6H9.2L8.2 7.4ZM5.4 0.6L3.9 5.2L3.7 4.2L3.1 1.2C3 0.9 2.7 0.6 2.3 0.6H0V0.7C0.8 0.9 1.6 1.2 2.2 1.7L3.6 7.4H5.3L7.9 0.6H5.4ZM19.6 0.6H18.1L15.5 7.4H17.1L17.5 6.3H19.5L19.7 7.4H21.2L19.6 0.6ZM17.9 5L18.7 2.7L19.1 5H17.9ZM14.1 2.1L14.3 0.8C13.9 0.6 13.3 0.5 12.7 0.5C11 0.5 9.8 1.4 9.8 2.7C9.8 3.7 10.7 4.2 11.4 4.5C12.1 4.8 12.3 5 12.3 5.3C12.3 5.7 11.9 5.9 11.4 5.9C10.7 5.9 10.3 5.8 9.7 5.5L9.5 5.4L9.3 6.8C9.7 7 10.4 7.1 11.1 7.1C12.9 7.1 14.1 6.2 14.1 4.8C14.1 4 13.6 3.5 12.5 3.1C11.9 2.8 11.5 2.6 11.5 2.3C11.5 2 11.9 1.7 12.5 1.7C13 1.7 13.4 1.8 13.8 2L14 2.1H14.1Z" fill="white"/>
+                  </svg>
+                </div>
+                <span class="payment-name">Visa <span class="card-num">•• 1234</span></span>
+                <div class="default-chip" id="chip-visa1234">Default</div>
+              </div>
+              <div class="row-right">
+                <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 4L10 8L6 12" stroke="#4f4f4f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Visa •• 8888 -->
+            <div class="payment-row" data-card="visa8888" onclick="openCardDetail('visa8888', '8888')">
+              <div class="row-left">
+                <div class="visa-logo">
+                  <svg width="22" height="8" viewBox="0 0 22 8" fill="none">
+                    <path d="M8.2 7.4H6.6L7.6 0.6H9.2L8.2 7.4ZM5.4 0.6L3.9 5.2L3.7 4.2L3.1 1.2C3 0.9 2.7 0.6 2.3 0.6H0V0.7C0.8 0.9 1.6 1.2 2.2 1.7L3.6 7.4H5.3L7.9 0.6H5.4ZM19.6 0.6H18.1L15.5 7.4H17.1L17.5 6.3H19.5L19.7 7.4H21.2L19.6 0.6ZM17.9 5L18.7 2.7L19.1 5H17.9ZM14.1 2.1L14.3 0.8C13.9 0.6 13.3 0.5 12.7 0.5C11 0.5 9.8 1.4 9.8 2.7C9.8 3.7 10.7 4.2 11.4 4.5C12.1 4.8 12.3 5 12.3 5.3C12.3 5.7 11.9 5.9 11.4 5.9C10.7 5.9 10.3 5.8 9.7 5.5L9.5 5.4L9.3 6.8C9.7 7 10.4 7.1 11.1 7.1C12.9 7.1 14.1 6.2 14.1 4.8C14.1 4 13.6 3.5 12.5 3.1C11.9 2.8 11.5 2.6 11.5 2.3C11.5 2 11.9 1.7 12.5 1.7C13 1.7 13.4 1.8 13.8 2L14 2.1H14.1Z" fill="white"/>
+                  </svg>
+                </div>
+                <span class="payment-name">Visa <span class="card-num">•• 8888</span></span>
+                <div class="default-chip" id="chip-visa8888">Default</div>
+              </div>
+              <div class="row-right">
+                <svg class="chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 4L10 8L6 12" stroke="#4f4f4f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Add Credit / Debit card -->
+            <div class="payment-row" onclick="openAddCard('payment-methods')">
+              <div class="row-left">
+                <div class="icon-wrap">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="10" r="9" stroke="#4f4f4f" stroke-width="1.3"/>
+                    <path d="M10 6V14M6 10H14" stroke="#4f4f4f" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <span class="payment-name">Add Credit / Debit card</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
@@ -1081,9 +1124,12 @@
       <div class="gl-card">
         <div class="gl-card-sheen"></div>
         <div class="gl-card-inner">
-          <!-- Top: chip + Visa -->
-          <div style="display:flex; align-items:flex-start; justify-content:space-between;">
-            <div class="gl-chip"></div>
+          <!-- Top: chip + nickname + Visa -->
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="gl-chip"></div>
+              <div class="gl-card-nickname" id="preview-nickname"></div>
+            </div>
             <svg class="gl-visa" width="52" height="17" viewBox="0 0 52 17" fill="none">
               <path d="M19.6 16H16.2L18.3 1.2H21.7L19.6 16ZM13.1 1.2L9.6 11.4L9.1 9L7.4 2.8C7.1 1.8 6.4 1.2 5.5 1.2H0.1L0 1.5C1.6 1.9 3.2 2.6 4.3 3.5L7.5 16H11.1L17.4 1.2H13.1ZM45.7 1.2H42.4L37.1 16H40.5L41.3 13.6H45.9L46.4 16H49.6L45.7 1.2ZM42.2 10.7L44 5.5L45 10.7H42.2ZM33.4 5.5L33.8 2.5C33.1 2.1 32 1.7 30.7 1.7C27.8 1.7 25.5 3.3 25.5 5.8 25.5 7.8 27 8.9 28.2 9.6 29.4 10.3 29.8 10.8 29.8 11.4 29.8 12.3 28.8 12.8 27.7 12.8 26.2 12.8 25.4 12.5 24.2 11.9L23.7 11.7 23.2 14.8C24 15.2 25.6 15.7 27.2 15.7 30.5 15.7 32.8 14 32.8 11.2 32.8 9.7 31.8 8.6 29.8 7.8 28.7 7.3 27.9 6.9 27.9 6.2 27.9 5.5 28.8 5 29.8 5 30.7 5 31.5 5.2 32.2 5.5L32.6 5.7 33.4 5.5Z" fill="white"/>
             </svg>
@@ -1111,6 +1157,12 @@
 
       <!-- Form -->
       <div class="add-card-form">
+        <div class="form-group">
+          <label class="form-label">Name this card<span class="form-optional">Optional</span></label>
+          <input class="form-input" id="ac-nickname" type="text"
+            placeholder="e.g. Personal, Work, Travel…"
+            oninput="onAcNickname(this)">
+        </div>
         <div class="form-group">
           <label class="form-label">Card Number</label>
           <input class="form-input" id="ac-number" type="text" inputmode="numeric"
@@ -1179,9 +1231,12 @@
       <div class="gl-card">
         <div class="gl-card-sheen"></div>
         <div class="gl-card-inner">
-          <!-- Top: chip + default -->
-          <div style="display:flex; align-items:flex-start; justify-content:space-between;">
-            <div class="gl-chip"></div>
+          <!-- Top: chip + nickname + default -->
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="gl-chip"></div>
+              <div class="gl-card-nickname" id="card-detail-nickname"></div>
+            </div>
             <div class="gl-default-chip" id="card-detail-chip">Default</div>
           </div>
           <!-- Number: •••• •••• •••• XXXX -->
@@ -1304,8 +1359,36 @@
 
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+<!-- Success Modal -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-card">
+    <div class="success-icon">
+      <div style="position:relative; display:inline-flex; justify-content:center; align-items:flex-end;">
+        <!-- Mascot — anchored bottom-left of circle -->
+        <svg style="position:absolute; bottom:0; left:-44px; z-index:1;"
+          width="44" height="56" viewBox="0 27 34 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24.0259 69.5982V69.5443C24.0259 64.3693 22.0857 59.0866 21.9779 58.8171C21.924 58.6554 21.7624 58.5476 21.6007 58.5476H11.5227L10.1754 58.2241C10.0676 58.2241 9.90589 58.2241 9.852 58.3319C9.69032 58.5475 6.34896 63.6147 6.29507 68.6279C5.86392 68.7896 4.89384 69.2208 4.57048 69.9755C4.4088 70.3528 4.4627 70.7302 4.62438 71.1075C4.89384 71.6466 5.27109 71.8083 5.54055 71.8083C5.81002 71.8083 6.0795 71.7005 6.29507 71.5387C6.29507 71.7544 6.34896 71.97 6.51064 72.1317C6.67232 72.3473 6.94178 72.6169 7.5346 72.6169H7.5885C8.12743 72.6169 8.39688 72.4012 8.50467 72.1856C8.55856 72.0778 8.61247 71.97 8.66636 71.8083C8.88193 71.97 9.0975 72.1317 9.36696 72.1856H9.42086C9.79811 72.9403 10.2831 73.5872 10.9299 74.0723V79.5707C10.9299 79.6246 10.9299 79.7324 10.9299 79.7863C10.9299 80.0019 11.0376 80.2175 11.1993 80.3793C11.5766 80.7566 12.2772 80.8105 13.1934 80.8105C13.4089 80.8105 13.6245 80.8105 13.8401 80.8105C14.3251 80.8105 14.8641 80.8105 15.2952 80.8105C15.9958 80.8105 16.6425 80.8105 17.0737 80.7566C17.5587 80.8105 18.1515 80.8105 18.8521 80.8105C19.3372 80.8105 19.8761 80.8105 20.3073 80.8105C20.5228 80.8105 20.7384 80.8105 20.954 80.8105C21.924 80.8105 22.5708 80.7566 22.948 80.3793C23.1097 80.2175 23.2175 80.0019 23.2175 79.7863C23.2175 79.1394 22.6247 78.3308 21.6546 77.7379V74.234C23.1097 73.2098 24.0259 71.5388 24.0259 69.5982Z" fill="#0D57E2"/>
+          <path d="M9.96017 71.9158C10.068 71.9158 10.1218 71.8619 10.1757 71.808C10.4452 71.4846 10.4991 71.1612 10.4452 70.7838C10.3374 70.1909 9.85237 69.7596 9.58291 69.544C9.79848 68.5737 10.9302 63.9917 12.9782 62.4285C13.086 62.3207 13.1399 62.159 13.0321 62.0512C12.9243 61.9433 12.7626 61.8894 12.6548 61.9972C10.1757 63.83 9.04399 69.3823 8.9901 69.5979C8.9901 69.7057 9.04398 69.8135 9.09788 69.8674C9.31345 69.9753 9.79848 70.4065 9.90627 70.8377C9.96016 71.0534 9.90628 71.2151 9.7446 71.4307C9.63681 71.5385 9.69071 71.7002 9.79849 71.808C9.85239 71.9158 9.90627 71.9158 9.96017 71.9158Z" fill="white"/>
+          <path d="M28.0682 49.5449C28.6071 52.887 28.2838 58.7627 17.9902 60.9729C7.69667 63.183 5.00204 58.0081 4.13975 54.7198L3.33136 50.8925L0.582817 38.063C-0.225577 34.2896 2.1457 30.624 5.86431 29.8155C7.80446 29.3842 9.7985 29.8155 11.4153 31.0014L11.6309 31.1631L11.7386 30.9475C12.7087 29.2225 14.3794 27.9827 16.2657 27.6053C19.9843 26.7968 23.7029 29.2225 24.5113 32.942L26.3436 41.4591L28.0682 49.5449Z" fill="white"/>
+          <path d="M13.4628 61.8897C14.864 61.8897 16.373 61.728 18.0437 61.3507C25.8043 59.6796 29.4151 55.5828 28.445 49.4915L24.8881 32.8347C24.457 30.8941 23.3252 29.2769 21.7084 28.1988C20.0377 27.1207 18.0976 26.7434 16.2113 27.1746C14.2173 27.6058 12.5466 28.8457 11.4687 30.5706C9.79806 29.4386 7.75014 29.0074 5.7561 29.4386C3.86985 29.8699 2.19917 31.0019 1.1752 32.6191C0.0973439 34.2901 -0.226027 36.2307 0.151224 38.1713L3.70816 54.8281C5.00159 59.464 8.34296 61.8897 13.4628 61.8897ZM27.6366 49.5993C28.5528 55.2594 25.2654 58.9788 17.882 60.5421C10.4987 62.1053 5.97166 60.1108 4.46266 54.5586L0.905738 37.9018C0.528488 36.1768 0.851835 34.4518 1.82191 32.9964C2.79198 31.5409 4.24709 30.5167 5.91778 30.1394C7.69624 29.7621 9.6364 30.1394 11.1454 31.2714L11.361 31.4331C11.4688 31.487 11.5765 31.5409 11.6843 31.487C11.7921 31.487 11.8999 31.3792 11.9538 31.2714L12.0616 31.0558C12.9777 29.4386 14.5406 28.3066 16.3191 27.8754C17.9898 27.498 19.7683 27.8215 21.2234 28.7918C22.6785 29.7621 23.7025 31.2175 24.0797 32.9425L27.6366 49.5993Z" fill="#0D57E2"/>
+          <path d="M16.3196 48.3596C16.4813 49.1682 16.104 49.9229 15.4573 50.0846C14.8106 50.2463 14.1639 49.7073 14.0022 48.8987C13.8405 48.0901 14.2178 47.3354 14.8645 47.1737C15.5112 47.012 16.1579 47.551 16.3196 48.3596Z" fill="#0D57E2"/>
+          <path d="M21.1679 47.2925C20.993 46.4775 21.3703 45.7055 22.0105 45.5681C22.6506 45.4306 23.3113 45.9799 23.4862 46.7949C23.661 47.6098 23.2838 48.3819 22.6436 48.5193C22.0034 48.6567 21.3427 48.1074 21.1679 47.2925Z" fill="#0D57E2"/>
+          <path d="M19.3376 50.731C18.8526 50.8388 18.3676 50.6232 18.3137 50.1919C18.2059 49.8146 18.5831 49.3833 19.0682 49.2755C19.5532 49.1677 20.0382 49.3833 20.0921 49.8146C20.1999 50.1919 19.8766 50.6232 19.3376 50.731Z" fill="white"/>
+          <path d="M19.1219 51.1083C19.2297 51.1083 19.3375 51.1083 19.4453 51.0544C20.1459 50.8927 20.631 50.2997 20.4693 49.6528C20.4154 49.3294 20.1998 49.0599 19.8764 48.9521C19.607 48.7903 19.2836 48.7903 18.9603 48.8443C18.2597 49.006 17.7746 49.5989 17.9363 50.2458C18.0441 50.7848 18.5291 51.1083 19.1219 51.1083ZM19.2836 49.6528C19.3914 49.6528 19.4453 49.6528 19.5531 49.7067C19.607 49.7067 19.6609 49.7606 19.7148 49.8685C19.7687 50.0302 19.607 50.2458 19.2836 50.2997C19.0142 50.3536 18.7447 50.2458 18.7447 50.0841C18.6908 49.9224 18.8525 49.7067 19.1758 49.6528C19.1758 49.6528 19.2297 49.6528 19.2836 49.6528Z" fill="#0D57E2"/>
+          <path d="M19.9307 64.8003C19.0684 64.8003 18.3678 65.1776 17.8289 65.7706C17.3439 65.1776 16.5894 64.8003 15.7271 64.8003C14.272 64.8542 13.1402 66.0401 13.1402 67.4956V69.8674C13.1402 69.9752 13.248 70.0831 13.3558 70.0831H14.1642C14.272 70.0831 14.3798 69.9752 14.3798 69.8674V67.4417C14.3798 66.687 14.9187 66.0401 15.6732 65.9862C16.5355 65.9323 17.2361 66.5792 17.2361 67.3878V68.8971C17.2361 69.2206 17.4517 69.4901 17.775 69.544C18.1523 69.5979 18.4756 69.2745 18.4756 68.951V67.4956C18.4756 66.7409 19.0146 66.094 19.7691 66.0401C20.6313 65.9862 21.3319 66.6331 21.3319 67.4417V69.9213C21.3319 70.0291 21.4397 70.0831 21.4936 70.0831H22.3559C22.4637 70.0831 22.5176 69.9752 22.5176 69.9213V67.4956C22.5176 66.0401 21.3319 64.8003 19.9307 64.8003Z" fill="white"/>
+          <path d="M19.607 56.8759C20.7388 56.8759 21.6011 55.69 21.6011 54.1806C21.6011 52.6713 20.7388 51.4854 19.607 51.4854C18.4753 51.4854 17.613 52.6713 17.613 54.1806C17.613 55.69 18.4753 56.8759 19.607 56.8759ZM19.607 52.2939C20.2537 52.2939 20.7927 53.1564 20.7927 54.1806C20.7927 55.2048 20.2537 56.0673 19.607 56.0673C18.9603 56.0673 18.4214 55.2048 18.4214 54.1806C18.4214 53.1564 18.9603 52.2939 19.607 52.2939Z" fill="#0D57E2"/>
+        </svg>
+        <!-- Green checkmark circle — centered -->
+        <svg width="76" height="76" viewBox="0 0 66 66" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="33" cy="33" r="33" fill="#4BCD82"/>
+          <path d="M19.8 34.6501L28.6 42.9001L46.2 23.1001" stroke="white" stroke-width="4.95" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="success-header" id="success-header"></div>
+    <div class="success-desc" id="success-desc"></div>
+  </div>
+</div>
 
 <script>
   /* ─── Shared wallet store (localStorage as source of truth) ─────────── */
@@ -1518,7 +1601,7 @@
 
     setTimeout(() => {
       navigate('wallet');
-      showToast('Voucher applied! ฿' + amount + ' added to wallet');
+      showToast('Voucher Applied', '฿' + amount + ' added to your wallet');
 
       // Reset voucher screen after it's hidden
       setTimeout(() => {
@@ -1532,7 +1615,8 @@
 
   /* ─── Card Details Screen ─── */
   let activeCardId = null;
-  const cardExpiries = { 'visa1234': '12/30', 'visa8888': '09/27' };
+  const cardExpiries  = { 'visa1234': '12/30', 'visa8888': '09/27' };
+  const cardNicknames = { 'visa1234': '', 'visa8888': '' };
 
   function openCardDetail(cardId, last4) {
     activeCardId = cardId;
@@ -1543,6 +1627,8 @@
       '<span class="gl-card-num-last">' + last4 + '</span>';
     document.getElementById('card-detail-expiry').textContent =
       cardExpiries[cardId] || '––/––';
+    document.getElementById('card-detail-nickname').textContent =
+      cardNicknames[cardId] || '';
     navigate('card-details');
   }
 
@@ -1581,7 +1667,7 @@
     activeCardId = null;
     document.getElementById('delete-sheet-overlay').classList.remove('show');
     navigate('payment-methods');
-    showToast('Card removed');
+    showToast('Card Removed', 'Your card has been deleted');
     // If deleted card was the default, prompt user to pick a new one
     if (wasDefault) openCdpSheet(null, true);
   }
@@ -1683,24 +1769,29 @@
   function openAddCard(origin) {
     addCardOrigin = origin;
     // Reset form
-    ['ac-number','ac-name','ac-expiry','ac-cvv'].forEach(id => document.getElementById(id).value = '');
+    ['ac-number','ac-name','ac-expiry','ac-cvv','ac-nickname'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('preview-number').innerHTML = '<span class="gl-card-num-dot">••••</span><span class="gl-card-num-dot">••••</span><span class="gl-card-num-dot">••••</span><span class="gl-card-num-last">••••</span>';
     document.getElementById('preview-name').textContent = 'YOUR NAME';
     document.getElementById('preview-expiry').textContent = 'MM/YY';
+    document.getElementById('preview-nickname').textContent = '';
     document.getElementById('ac-submit-btn').disabled = true;
     navigate('add-card');
   }
 
   function openAddCardFromCdp() {
     closeCdpSheet();
-    // Navigate back to whatever screen triggered CDP (card-details or wallet), then open add-card
     addCardOrigin = 'payment-methods';
-    ['ac-number','ac-name','ac-expiry','ac-cvv'].forEach(id => document.getElementById(id).value = '');
+    ['ac-number','ac-name','ac-expiry','ac-cvv','ac-nickname'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('preview-number').innerHTML = '<span class="gl-card-num-dot">••••</span><span class="gl-card-num-dot">••••</span><span class="gl-card-num-dot">••••</span><span class="gl-card-num-last">••••</span>';
     document.getElementById('preview-name').textContent = 'YOUR NAME';
     document.getElementById('preview-expiry').textContent = 'MM/YY';
+    document.getElementById('preview-nickname').textContent = '';
     document.getElementById('ac-submit-btn').disabled = true;
     navigate('add-card');
+  }
+
+  function onAcNickname(el) {
+    document.getElementById('preview-nickname').textContent = el.value.trim();
   }
 
   function onAcNumber(el) {
@@ -1742,7 +1833,9 @@
     const num = document.getElementById('ac-number').value.replace(/\s/g,'');
     const last4 = num.slice(-4);
     const cardId = 'visa' + last4;
-    cardExpiries[cardId] = document.getElementById('ac-expiry').value;
+    cardExpiries[cardId]  = document.getElementById('ac-expiry').value;
+    const nickname = document.getElementById('ac-nickname').value.trim();
+    cardNicknames[cardId] = nickname;
 
     // Build the VISA SVG path (reuse existing)
     const visaPath = 'M8.2 7.4H6.6L7.6 0.6H9.2L8.2 7.4ZM5.4 0.6L3.9 5.2L3.7 4.2L3.1 1.2C3 0.9 2.7 0.6 2.3 0.6H0V0.7C0.8 0.9 1.6 1.2 2.2 1.7L3.6 7.4H5.3L7.9 0.6H5.4ZM19.6 0.6H18.1L15.5 7.4H17.1L17.5 6.3H19.5L19.7 7.4H21.2L19.6 0.6ZM17.9 5L18.7 2.7L19.1 5H17.9ZM14.1 2.1L14.3 0.8C13.9 0.6 13.3 0.5 12.7 0.5C11 0.5 9.8 1.4 9.8 2.7C9.8 3.7 10.7 4.2 11.4 4.5C12.1 4.8 12.3 5 12.3 5.3C12.3 5.7 11.9 5.9 11.4 5.9C10.7 5.9 10.3 5.8 9.7 5.5L9.5 5.4L9.3 6.8C9.7 7 10.4 7.1 11.1 7.1C12.9 7.1 14.1 6.2 14.1 4.8C14.1 4 13.6 3.5 12.5 3.1C11.9 2.8 11.5 2.6 11.5 2.3C11.5 2 11.9 1.7 12.5 1.7C13 1.7 13.4 1.8 13.8 2L14 2.1H14.1Z';
@@ -1760,7 +1853,7 @@
             <path d="${visaPath}" fill="white"/>
           </svg>
         </div>
-        <span class="payment-name">Visa <span class="card-num">•• ${last4}</span></span>
+        <span class="payment-name">${nickname || 'Visa'} <span class="card-num">•• ${last4}</span></span>
         <div class="default-chip" id="chip-${cardId}">Default</div>
       </div>
       <div class="row-right">
@@ -1775,7 +1868,7 @@
       renderTopupCardSelect();
     }
     navigate(origin);
-    showToast('Card •• ' + last4 + ' added');
+    showToast('Card Added', (nickname || 'Visa') + ' •• ' + last4 + ' is ready to use');
   }
 
   /* ─── Topup Screen ─── */
@@ -1846,7 +1939,7 @@
 
       btn.textContent = 'Next';
       navigate('wallet');
-      showToast('Top-up successful! ฿' + amount + ' added');
+      showToast('Top-up Successful', '฿' + amount + ' has been added to your wallet');
     }, 600);
   }
 
@@ -1888,16 +1981,17 @@
     btn.disabled = true;
 
     navigate('wallet');
-    showToast('Top-up successful! ฿' + amount + ' via Visa •• ' + last4);
+    showToast('Top-up Successful', '฿' + amount + ' added via Visa •• ' + last4);
   }
 
-  /* ─── Toast ─── */
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(t._timer);
-    t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+  /* ─── Success Modal ─── */
+  function showToast(header, desc) {
+    const overlay = document.getElementById('success-overlay');
+    document.getElementById('success-header').textContent = header;
+    document.getElementById('success-desc').textContent = desc || '';
+    overlay.classList.add('show');
+    clearTimeout(overlay._timer);
+    overlay._timer = setTimeout(() => overlay.classList.remove('show'), 2600);
   }
 
   /* ─── Init ─── */
