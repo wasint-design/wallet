@@ -435,6 +435,45 @@
     .btn-delete:active { background: rgba(240,85,85,0.06); }
 
     /* ═══════════════════════════
+       HISTORY SCREEN
+    ═══════════════════════════ */
+    .history-tabs {
+      display: flex; gap: 8px;
+      height: 54px; align-items: center;
+      padding: 14px 16px;
+      overflow-x: auto; background: #fff;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .history-tabs::-webkit-scrollbar { display: none; }
+    .history-tab {
+      display: flex; align-items: center; justify-content: center;
+      padding: 5px 16px; border-radius: 20px;
+      border: 1px solid #c7c7c7; background: #fff;
+      font-size: 14px; font-weight: 600;
+      color: #4f4f4f; letter-spacing: 0.25px; line-height: 22px;
+      white-space: nowrap; flex-shrink: 0;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .history-tab.active { background: #0d57e2; border-color: #0d57e2; color: #fff; }
+    .tx-list { padding: 8px 16px 24px; background: #fff; }
+    .tx-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; }
+    .tx-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #0d57e2;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .tx-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .tx-name { font-size: 14px; font-weight: 600; color: #4f4f4f; letter-spacing: 0.25px; line-height: 22px; }
+    .tx-subtitle { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap; }
+    .tx-status-completed { color: #34c759; }
+    .tx-status-cancelled { color: #ff3b30; }
+    .tx-date { color: #999; }
+    .tx-amount { font-size: 14px; font-weight: 600; color: #0d57e2; letter-spacing: 0.25px; line-height: 22px; white-space: nowrap; flex-shrink: 0; }
+    .tx-sep { height: 1px; background: #efefef; }
+
+    /* ═══════════════════════════
        DELETE CONFIRM BOTTOM SHEET
     ═══════════════════════════ */
     .sheet-overlay {
@@ -501,21 +540,20 @@
     ═══════════════════════════ */
     .add-card-content { padding: 24px 16px 100px; display: flex; flex-direction: column; gap: 24px; }
 
-    /* Add card preview — extra fields */
-    .gl-card-mid { display: flex; flex-direction: column; gap: 6px; }
+    /* Add card preview */
     .gl-card-full-num {
-      display: flex; gap: 24px; align-items: center;
-      color: #fff;
+      font-size: 18px; font-weight: 500;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 3px;
       font-variant-numeric: tabular-nums;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
     }
     .gl-card-field-label {
       font-size: 9px; font-weight: 500; color: rgba(255,255,255,0.55);
       text-transform: uppercase; letter-spacing: 0.8px; line-height: 1;
     }
     .gl-card-field-value {
-      font-size: 12px; font-weight: 600; color: #fff;
-      letter-spacing: 0.5px; line-height: 1.4;
+      font-size: 14px; font-weight: 600; color: #fff;
+      letter-spacing: 0.25px; line-height: 22px;
     }
     .gl-card-bottom-row { display: flex; align-items: flex-end; justify-content: space-between; }
 
@@ -647,7 +685,13 @@
         </svg>
       </div>
       <span class="nav-title">Payment methods</span>
-      <div style="width:24px;"></div>
+      <div class="nav-history" onclick="navigate('history')" style="cursor:pointer;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.6437 1.2737C10.43 1.25794 10.2153 1.25 10 1.25V0C10.2461 0 10.4914 0.00907749 10.7356 0.0270902L10.6437 1.2737ZM13.1491 1.83631C12.7482 1.68167 12.3364 1.55675 11.9171 1.4626L12.191 0.242977C12.6702 0.350578 13.1408 0.493332 13.5989 0.670068L13.1491 1.83631ZM14.8612 2.72464C14.6822 2.60502 14.4993 2.49234 14.3129 2.38673L14.929 1.29913C15.1421 1.41983 15.3511 1.5486 15.5557 1.6853C15.7603 1.822 15.9593 1.96587 16.1523 2.11653L15.3833 3.10197C15.2144 2.97015 15.0403 2.84426 14.8612 2.72464ZM17.1539 4.96168C16.9064 4.61036 16.6335 4.27773 16.3372 3.96652L17.2425 3.1046C17.5811 3.46027 17.8931 3.84041 18.1758 4.24191L17.1539 4.96168ZM18.0839 6.65152C18.0016 6.4526 17.9121 6.25728 17.8157 6.06589L18.9323 5.50389C19.0423 5.72262 19.1446 5.94584 19.2388 6.17317C19.333 6.40049 19.4185 6.63066 19.4953 6.86318L18.3084 7.25529C18.2412 7.05184 18.1663 6.85044 18.0839 6.65152ZM18.7474 9.78527C18.7368 9.35569 18.6946 8.92746 18.6212 8.50408L19.8528 8.29039C19.9367 8.77424 19.9849 9.26365 19.997 9.75458L18.7474 9.78527ZM18.5819 11.707C18.6239 11.4959 18.658 11.2837 18.6842 11.0711L19.9248 11.2241C19.8948 11.4671 19.8559 11.7096 19.8079 11.9509C19.7598 12.1922 19.7031 12.4311 19.6378 12.6671L18.433 12.3337C18.4902 12.1272 18.5399 11.9182 18.5819 11.707ZM17.3925 14.6812C17.6224 14.3182 17.8252 13.9387 17.9993 13.5459L19.1421 14.0524C18.9431 14.5014 18.7113 14.9351 18.4485 15.35L17.3925 14.6812ZM16.1872 16.1872C16.3394 16.0349 16.4856 15.8775 16.6256 15.7153L17.5721 16.5317C17.4121 16.7172 17.2451 16.8971 17.0711 17.0711L16.1872 16.1872Z" fill="#4F4F4F"/>
+          <path d="M10 1.25C8.56106 1.25 7.14432 1.60487 5.87528 2.28319C4.60624 2.9615 3.52408 3.94232 2.72464 5.13876C1.92521 6.3352 1.43318 7.71033 1.29214 9.14235C1.15109 10.5744 1.3654 12.0191 1.91606 13.3485C2.46672 14.6779 3.33674 15.851 4.44906 16.7638C5.56138 17.6767 6.88166 18.3011 8.29296 18.5819C9.70426 18.8626 11.163 18.7909 12.54 18.3732C13.917 17.9555 15.1697 17.2047 16.1872 16.1872L17.0711 17.0711C15.9082 18.2339 14.4765 19.092 12.9028 19.5694C11.3291 20.0468 9.66201 20.1287 8.0491 19.8079C6.43619 19.487 4.92729 18.7734 3.65607 17.7301C2.38485 16.6868 1.39053 15.3462 0.761207 13.8268C0.131881 12.3075 -0.113035 10.6564 0.0481553 9.01983C0.209345 7.38324 0.771666 5.81166 1.68531 4.4443C2.59895 3.07694 3.83571 1.956 5.28603 1.18079C6.73636 0.405571 8.35549 0 10 0V1.25Z" fill="#4F4F4F"/>
+          <path d="M9.375 3.75C9.72018 3.75 10 4.02982 10 4.375V10.8873L14.0601 13.2073C14.3598 13.3786 14.4639 13.7604 14.2927 14.0601C14.1214 14.3598 13.7396 14.4639 13.4399 14.2927L9.06491 11.7927C8.87018 11.6814 8.75 11.4743 8.75 11.25V4.375C8.75 4.02982 9.02982 3.75 9.375 3.75Z" fill="#4F4F4F"/>
+        </svg>
+      </div>
     </div>
 
     <div class="content">
@@ -781,11 +825,11 @@
         </svg>
       </div>
       <span class="nav-title">Wallet</span>
-      <div class="nav-history">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <circle cx="10" cy="10" r="8.5" stroke="#4f4f4f" stroke-width="1.3"/>
-          <path d="M10 5.5V10L13 12" stroke="#4f4f4f" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M2.5 4.5L1 3M4.5 2.5L3 1" stroke="#4f4f4f" stroke-width="1.3" stroke-linecap="round"/>
+      <div class="nav-history" onclick="navigate('history')" style="cursor:pointer;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.6437 1.2737C10.43 1.25794 10.2153 1.25 10 1.25V0C10.2461 0 10.4914 0.00907749 10.7356 0.0270902L10.6437 1.2737ZM13.1491 1.83631C12.7482 1.68167 12.3364 1.55675 11.9171 1.4626L12.191 0.242977C12.6702 0.350578 13.1408 0.493332 13.5989 0.670068L13.1491 1.83631ZM14.8612 2.72464C14.6822 2.60502 14.4993 2.49234 14.3129 2.38673L14.929 1.29913C15.1421 1.41983 15.3511 1.5486 15.5557 1.6853C15.7603 1.822 15.9593 1.96587 16.1523 2.11653L15.3833 3.10197C15.2144 2.97015 15.0403 2.84426 14.8612 2.72464ZM17.1539 4.96168C16.9064 4.61036 16.6335 4.27773 16.3372 3.96652L17.2425 3.1046C17.5811 3.46027 17.8931 3.84041 18.1758 4.24191L17.1539 4.96168ZM18.0839 6.65152C18.0016 6.4526 17.9121 6.25728 17.8157 6.06589L18.9323 5.50389C19.0423 5.72262 19.1446 5.94584 19.2388 6.17317C19.333 6.40049 19.4185 6.63066 19.4953 6.86318L18.3084 7.25529C18.2412 7.05184 18.1663 6.85044 18.0839 6.65152ZM18.7474 9.78527C18.7368 9.35569 18.6946 8.92746 18.6212 8.50408L19.8528 8.29039C19.9367 8.77424 19.9849 9.26365 19.997 9.75458L18.7474 9.78527ZM18.5819 11.707C18.6239 11.4959 18.658 11.2837 18.6842 11.0711L19.9248 11.2241C19.8948 11.4671 19.8559 11.7096 19.8079 11.9509C19.7598 12.1922 19.7031 12.4311 19.6378 12.6671L18.433 12.3337C18.4902 12.1272 18.5399 11.9182 18.5819 11.707ZM17.3925 14.6812C17.6224 14.3182 17.8252 13.9387 17.9993 13.5459L19.1421 14.0524C18.9431 14.5014 18.7113 14.9351 18.4485 15.35L17.3925 14.6812ZM16.1872 16.1872C16.3394 16.0349 16.4856 15.8775 16.6256 15.7153L17.5721 16.5317C17.4121 16.7172 17.2451 16.8971 17.0711 17.0711L16.1872 16.1872Z" fill="#4F4F4F"/>
+          <path d="M10 1.25C8.56106 1.25 7.14432 1.60487 5.87528 2.28319C4.60624 2.9615 3.52408 3.94232 2.72464 5.13876C1.92521 6.3352 1.43318 7.71033 1.29214 9.14235C1.15109 10.5744 1.3654 12.0191 1.91606 13.3485C2.46672 14.6779 3.33674 15.851 4.44906 16.7638C5.56138 17.6767 6.88166 18.3011 8.29296 18.5819C9.70426 18.8626 11.163 18.7909 12.54 18.3732C13.917 17.9555 15.1697 17.2047 16.1872 16.1872L17.0711 17.0711C15.9082 18.2339 14.4765 19.092 12.9028 19.5694C11.3291 20.0468 9.66201 20.1287 8.0491 19.8079C6.43619 19.487 4.92729 18.7734 3.65607 17.7301C2.38485 16.6868 1.39053 15.3462 0.761207 13.8268C0.131881 12.3075 -0.113035 10.6564 0.0481553 9.01983C0.209345 7.38324 0.771666 5.81166 1.68531 4.4443C2.59895 3.07694 3.83571 1.956 5.28603 1.18079C6.73636 0.405571 8.35549 0 10 0V1.25Z" fill="#4F4F4F"/>
+          <path d="M9.375 3.75C9.72018 3.75 10 4.02982 10 4.375V10.8873L14.0601 13.2073C14.3598 13.3786 14.4639 13.7604 14.2927 14.0601C14.1214 14.3598 13.7396 14.4639 13.4399 14.2927L9.06491 11.7927C8.87018 11.6814 8.75 11.4743 8.75 11.25V4.375C8.75 4.02982 9.02982 3.75 9.375 3.75Z" fill="#4F4F4F"/>
         </svg>
       </div>
     </div>
@@ -827,6 +871,120 @@
       <div style="margin-top:32px; display:flex; flex-direction:column; gap:16px;">
         <button class="btn-primary" onclick="navigate('topup')">Topup</button>
         <button class="btn-outline" onclick="navigate('voucher')">Voucher</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SCREEN — History
+  ═══════════════════════════════════════ -->
+  <div class="screen" id="screen-history">
+
+    <div class="status-bar">
+      <span class="status-time">5:13</span>
+      <div class="battery-icon">
+        <svg width="25" height="13" viewBox="0 0 25 13" fill="none">
+          <rect x="0.5" y="0.5" width="21" height="12" rx="3.5" stroke="#4f4f4f" stroke-opacity="0.35"/>
+          <rect x="2" y="2" width="16" height="9" rx="1.5" fill="#4f4f4f"/>
+          <path d="M23 4.5C23.8 4.83 24.5 5.6 24.5 6.5C24.5 7.4 23.8 8.17 23 8.5V4.5Z" fill="#4f4f4f" fill-opacity="0.4"/>
+          <text x="9.5" y="10.5" font-size="7" font-weight="700" fill="white" text-anchor="middle" font-family="system-ui">76</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <div class="nav-back" onclick="navigate('wallet')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M15 6L9 12L15 18" stroke="#0d57e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="nav-title">History</span>
+    </div>
+
+    <div class="history-tabs">
+      <div class="history-tab" onclick="setHistoryTab(this)">All History</div>
+      <div class="history-tab" onclick="setHistoryTab(this)">Trip</div>
+      <div class="history-tab active" onclick="setHistoryTab(this)">My Wallet</div>
+    </div>
+
+    <div class="tx-list">
+      <div class="tx-row">
+        <div class="tx-icon"><svg width="22" height="17" viewBox="0 0 22 17" fill="none"><rect x="1" y="1" width="20" height="15" rx="2.5" stroke="white" stroke-width="1.5"/><path d="M1 5.5h20" stroke="white" stroke-width="1.5"/><rect x="13" y="8.5" width="6" height="4" rx="2" fill="white"/></svg></div>
+        <div class="tx-info">
+          <div class="tx-name">Voucher UMT900</div>
+          <div class="tx-subtitle"><span class="tx-status-completed">Completed</span><span class="tx-date">&nbsp;| 26 May 2026, 11:53</span></div>
+        </div>
+        <div class="tx-amount">900 ฿</div>
+      </div>
+      <div class="tx-sep"></div>
+
+      <div class="tx-row">
+        <div class="tx-icon"><svg width="22" height="17" viewBox="0 0 22 17" fill="none"><rect x="1" y="1" width="20" height="15" rx="2.5" stroke="white" stroke-width="1.5"/><path d="M1 5.5h20" stroke="white" stroke-width="1.5"/><rect x="13" y="8.5" width="6" height="4" rx="2" fill="white"/></svg></div>
+        <div class="tx-info">
+          <div class="tx-name">Voucher UMT900</div>
+          <div class="tx-subtitle"><span class="tx-status-completed">Completed</span><span class="tx-date">&nbsp;| 9 Apr 2026, 17:37</span></div>
+        </div>
+        <div class="tx-amount">900 ฿</div>
+      </div>
+      <div class="tx-sep"></div>
+
+      <div class="tx-row">
+        <div class="tx-icon"><svg width="22" height="17" viewBox="0 0 22 17" fill="none"><rect x="1" y="1" width="20" height="15" rx="2.5" stroke="white" stroke-width="1.5"/><path d="M1 5.5h20" stroke="white" stroke-width="1.5"/><rect x="13" y="8.5" width="6" height="4" rx="2" fill="white"/></svg></div>
+        <div class="tx-info">
+          <div class="tx-name">Top-up by Credit/Debit Card</div>
+          <div class="tx-subtitle"><span class="tx-status-cancelled">Cancelled</span><span class="tx-date">&nbsp;| 18 Mar 2026, 18:42</span></div>
+        </div>
+        <div class="tx-amount">50 ฿</div>
+      </div>
+      <div class="tx-sep"></div>
+
+      <div class="tx-row">
+        <div class="tx-icon"><svg width="22" height="17" viewBox="0 0 22 17" fill="none"><rect x="1" y="1" width="20" height="15" rx="2.5" stroke="white" stroke-width="1.5"/><path d="M1 5.5h20" stroke="white" stroke-width="1.5"/><rect x="13" y="8.5" width="6" height="4" rx="2" fill="white"/></svg></div>
+        <div class="tx-info">
+          <div class="tx-name">Top-up by Credit/Debit Card</div>
+          <div class="tx-subtitle"><span class="tx-status-cancelled">Cancelled</span><span class="tx-date">&nbsp;| 18 Mar 2026, 18:40</span></div>
+        </div>
+        <div class="tx-amount">50 ฿</div>
+      </div>
+      <div class="tx-sep"></div>
+
+      <div class="tx-row">
+        <div class="tx-icon"><svg width="22" height="17" viewBox="0 0 22 17" fill="none"><rect x="1" y="1" width="20" height="15" rx="2.5" stroke="white" stroke-width="1.5"/><path d="M1 5.5h20" stroke="white" stroke-width="1.5"/><rect x="13" y="8.5" width="6" height="4" rx="2" fill="white"/></svg></div>
+        <div class="tx-info">
+          <div class="tx-name">Voucher UMT900</div>
+          <div class="tx-subtitle"><span class="tx-status-completed">Completed</span><span class="tx-date">&nbsp;| 4 Mar 2026, 11:24</span></div>
+        </div>
+        <div class="tx-amount">900 ฿</div>
+      </div>
+      <div class="tx-sep"></div>
+
+      <div class="tx-row">
+        <div class="tx-icon"><svg width="22" height="17" viewBox="0 0 22 17" fill="none"><rect x="1" y="1" width="20" height="15" rx="2.5" stroke="white" stroke-width="1.5"/><path d="M1 5.5h20" stroke="white" stroke-width="1.5"/><rect x="13" y="8.5" width="6" height="4" rx="2" fill="white"/></svg></div>
+        <div class="tx-info">
+          <div class="tx-name">Voucher UMT900</div>
+          <div class="tx-subtitle"><span class="tx-status-completed">Completed</span><span class="tx-date">&nbsp;| 3 Feb 2026, 11:41</span></div>
+        </div>
+        <div class="tx-amount">900 ฿</div>
+      </div>
+      <div class="tx-sep"></div>
+
+      <div class="tx-row">
+        <div class="tx-icon"><svg width="22" height="17" viewBox="0 0 22 17" fill="none"><rect x="1" y="1" width="20" height="15" rx="2.5" stroke="white" stroke-width="1.5"/><path d="M1 5.5h20" stroke="white" stroke-width="1.5"/><rect x="13" y="8.5" width="6" height="4" rx="2" fill="white"/></svg></div>
+        <div class="tx-info">
+          <div class="tx-name">Voucher UMT900</div>
+          <div class="tx-subtitle"><span class="tx-status-completed">Completed</span><span class="tx-date">&nbsp;| 20 Jan 2026, 13:31</span></div>
+        </div>
+        <div class="tx-amount">900 ฿</div>
+      </div>
+      <div class="tx-sep"></div>
+
+      <div class="tx-row">
+        <div class="tx-icon"><svg width="22" height="17" viewBox="0 0 22 17" fill="none"><rect x="1" y="1" width="20" height="15" rx="2.5" stroke="white" stroke-width="1.5"/><path d="M1 5.5h20" stroke="white" stroke-width="1.5"/><rect x="13" y="8.5" width="6" height="4" rx="2" fill="white"/></svg></div>
+        <div class="tx-info">
+          <div class="tx-name">Voucher UMT900</div>
+          <div class="tx-subtitle"><span class="tx-status-completed">Completed</span><span class="tx-date">&nbsp;| 4 Dec 2025, 19:05</span></div>
+        </div>
+        <div class="tx-amount">900 ฿</div>
       </div>
     </div>
   </div>
@@ -1066,33 +1224,19 @@
     </div>
 
     <div class="content" style="padding-top:24px;">
-      <!-- Linked Cards -->
-      <div class="section">
-        <div class="section-title">Linked Card</div>
-        <div class="payment-list" id="topup-card-list">
-          <!-- rendered by renderTopupCardSelect() -->
-        </div>
-      </div>
-
-      <!-- Add payment -->
-      <div class="section" style="margin-top:32px;">
-        <div class="section-title">Add payment</div>
-        <div class="payment-list">
-          <div class="payment-row" onclick="openAddCard('topup-card-select')">
-            <div class="row-left">
-              <div style="width:29px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-                  <rect x="0.75" y="0.75" width="18.5" height="14.5" rx="2.25" stroke="#4f4f4f" stroke-width="1.5"/>
-                  <path d="M0.75 5h18.5" stroke="#4f4f4f" stroke-width="1.5"/>
-                  <rect x="2.5" y="8.5" width="4" height="2.5" rx="0.5" fill="#4f4f4f"/>
-                </svg>
-              </div>
-              <span class="payment-name">Credit / Debit Card</span>
-            </div>
-            <div class="row-right">
-              <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#9b9b9b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
+      <div class="pm-section">
+        <div class="pm-section-header">
+          <div class="pm-section-icon">
+            <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+              <rect x="0.75" y="0.75" width="18.5" height="14.5" rx="2.25" stroke="#0d57e2" stroke-width="1.5"/>
+              <path d="M0.75 5h18.5" stroke="#0d57e2" stroke-width="1.5"/>
+              <rect x="2.5" y="8.5" width="4" height="2.5" rx="0.5" fill="#0d57e2"/>
+            </svg>
           </div>
+          <span class="pm-section-label">Topup by Credit / Debit card</span>
+        </div>
+        <div class="pm-sub-list" id="topup-card-list">
+          <!-- rendered by renderTopupCardSelect() -->
         </div>
       </div>
     </div>
@@ -1124,33 +1268,22 @@
       <div class="gl-card">
         <div class="gl-card-sheen"></div>
         <div class="gl-card-inner">
-          <!-- Top: chip + nickname + Visa -->
-          <div style="display:flex; align-items:center; justify-content:space-between;">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <div class="gl-chip"></div>
-              <div class="gl-card-nickname" id="preview-nickname"></div>
-            </div>
-            <svg class="gl-visa" width="52" height="17" viewBox="0 0 52 17" fill="none">
-              <path d="M19.6 16H16.2L18.3 1.2H21.7L19.6 16ZM13.1 1.2L9.6 11.4L9.1 9L7.4 2.8C7.1 1.8 6.4 1.2 5.5 1.2H0.1L0 1.5C1.6 1.9 3.2 2.6 4.3 3.5L7.5 16H11.1L17.4 1.2H13.1ZM45.7 1.2H42.4L37.1 16H40.5L41.3 13.6H45.9L46.4 16H49.6L45.7 1.2ZM42.2 10.7L44 5.5L45 10.7H42.2ZM33.4 5.5L33.8 2.5C33.1 2.1 32 1.7 30.7 1.7C27.8 1.7 25.5 3.3 25.5 5.8 25.5 7.8 27 8.9 28.2 9.6 29.4 10.3 29.8 10.8 29.8 11.4 29.8 12.3 28.8 12.8 27.7 12.8 26.2 12.8 25.4 12.5 24.2 11.9L23.7 11.7 23.2 14.8C24 15.2 25.6 15.7 27.2 15.7 30.5 15.7 32.8 14 32.8 11.2 32.8 9.7 31.8 8.6 29.8 7.8 28.7 7.3 27.9 6.9 27.9 6.2 27.9 5.5 28.8 5 29.8 5 30.7 5 31.5 5.2 32.2 5.5L32.6 5.7 33.4 5.5Z" fill="white"/>
-            </svg>
+          <!-- Top: chip + nickname -->
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="gl-chip"></div>
+            <div class="gl-card-nickname" id="preview-nickname"></div>
           </div>
-          <!-- Full number -->
-          <div class="gl-card-full-num" id="preview-number">
-            <span class="gl-card-num-dot">••••</span>
-            <span class="gl-card-num-dot">••••</span>
-            <span class="gl-card-num-dot">••••</span>
-            <span class="gl-card-num-last">••••</span>
-          </div>
-          <!-- Bottom: name + expiry -->
+          <!-- Card number -->
+          <div class="gl-card-full-num" id="preview-number">••••   ••••   ••••   ••••</div>
+          <!-- Bottom: expiry + Visa -->
           <div class="gl-card-bottom-row">
             <div>
-              <div class="gl-card-field-label">Card Holder</div>
-              <div class="gl-card-field-value" id="preview-name">YOUR NAME</div>
-            </div>
-            <div style="text-align:right;">
-              <div class="gl-card-field-label">Expires</div>
+              <div class="gl-card-field-label">Expiry date</div>
               <div class="gl-card-field-value" id="preview-expiry">MM/YY</div>
             </div>
+            <svg width="52" height="17" viewBox="0 0 52 17" fill="none">
+              <path d="M19.6 16H16.2L18.3 1.2H21.7L19.6 16ZM13.1 1.2L9.6 11.4L9.1 9L7.4 2.8C7.1 1.8 6.4 1.2 5.5 1.2H0.1L0 1.5C1.6 1.9 3.2 2.6 4.3 3.5L7.5 16H11.1L17.4 1.2H13.1ZM45.7 1.2H42.4L37.1 16H40.5L41.3 13.6H45.9L46.4 16H49.6L45.7 1.2ZM42.2 10.7L44 5.5L45 10.7H42.2ZM33.4 5.5L33.8 2.5C33.1 2.1 32 1.7 30.7 1.7C27.8 1.7 25.5 3.3 25.5 5.8 25.5 7.8 27 8.9 28.2 9.6 29.4 10.3 29.8 10.8 29.8 11.4 29.8 12.3 28.8 12.8 27.7 12.8 26.2 12.8 25.4 12.5 24.2 11.9L23.7 11.7 23.2 14.8C24 15.2 25.6 15.7 27.2 15.7 30.5 15.7 32.8 14 32.8 11.2 32.8 9.7 31.8 8.6 29.8 7.8 28.7 7.3 27.9 6.9 27.9 6.2 27.9 5.5 28.8 5 29.8 5 30.7 5 31.5 5.2 32.2 5.5L32.6 5.7 33.4 5.5Z" fill="white"/>
+            </svg>
           </div>
         </div>
       </div>
@@ -1440,7 +1573,7 @@
   document.addEventListener('DOMContentLoaded', syncAllBalances);
 
   /* ─── Screen order for direction ─── */
-  const SCREEN_ORDER = ['payment-methods', 'wallet', 'topup', 'topup-card-select', 'add-card', 'voucher', 'card-details'];
+  const SCREEN_ORDER = ['payment-methods', 'wallet', 'history', 'topup', 'topup-card-select', 'add-card', 'voucher', 'card-details'];
 
   /* ─── Navigation ─── */
   function navigate(to) {
@@ -1485,6 +1618,12 @@
         }, 280);
       });
     });
+  }
+
+  /* ─── History ─── */
+  function setHistoryTab(el) {
+    document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
   }
 
   /* ─── Payment Methods ─── */
@@ -1768,10 +1907,8 @@
 
   function openAddCard(origin) {
     addCardOrigin = origin;
-    // Reset form
     ['ac-number','ac-name','ac-expiry','ac-cvv','ac-nickname'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('preview-number').innerHTML = '<span class="gl-card-num-dot">••••</span><span class="gl-card-num-dot">••••</span><span class="gl-card-num-dot">••••</span><span class="gl-card-num-last">••••</span>';
-    document.getElementById('preview-name').textContent = 'YOUR NAME';
+    document.getElementById('preview-number').textContent = '••••   ••••   ••••   ••••';
     document.getElementById('preview-expiry').textContent = 'MM/YY';
     document.getElementById('preview-nickname').textContent = '';
     document.getElementById('ac-submit-btn').disabled = true;
@@ -1782,8 +1919,7 @@
     closeCdpSheet();
     addCardOrigin = 'payment-methods';
     ['ac-number','ac-name','ac-expiry','ac-cvv','ac-nickname'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('preview-number').innerHTML = '<span class="gl-card-num-dot">••••</span><span class="gl-card-num-dot">••••</span><span class="gl-card-num-dot">••••</span><span class="gl-card-num-last">••••</span>';
-    document.getElementById('preview-name').textContent = 'YOUR NAME';
+    document.getElementById('preview-number').textContent = '••••   ••••   ••••   ••••';
     document.getElementById('preview-expiry').textContent = 'MM/YY';
     document.getElementById('preview-nickname').textContent = '';
     document.getElementById('ac-submit-btn').disabled = true;
@@ -1799,9 +1935,7 @@
     el.value = v.replace(/(.{4})/g, '$1 ').trim();
     const d = v.padEnd(16, '•');
     const parts = [d.slice(0,4), d.slice(4,8), d.slice(8,12), d.slice(12,16)];
-    const cls = ['gl-card-num-dot','gl-card-num-dot','gl-card-num-dot','gl-card-num-last'];
-    document.getElementById('preview-number').innerHTML = parts.map((p,i) =>
-      `<span class="${cls[i]}">${p}</span>`).join('');
+    document.getElementById('preview-number').textContent = parts.join('   ');
     onAcValidate();
   }
 
@@ -1945,27 +2079,45 @@
 
   function renderTopupCardSelect() {
     const list = document.getElementById('topup-card-list');
-    // Read cards currently in the payment-methods screen (shared pool)
+    const visaPath = 'M8.2 7.4H6.6L7.6 0.6H9.2L8.2 7.4ZM5.4 0.6L3.9 5.2L3.7 4.2L3.1 1.2C3 0.9 2.7 0.6 2.3 0.6H0V0.7C0.8 0.9 1.6 1.2 2.2 1.7L3.6 7.4H5.3L7.9 0.6H5.4ZM19.6 0.6H18.1L15.5 7.4H17.1L17.5 6.3H19.5L19.7 7.4H21.2L19.6 0.6ZM17.9 5L18.7 2.7L19.1 5H17.9ZM14.1 2.1L14.3 0.8C13.9 0.6 13.3 0.5 12.7 0.5C11 0.5 9.8 1.4 9.8 2.7C9.8 3.7 10.7 4.2 11.4 4.5C12.1 4.8 12.3 5 12.3 5.3C12.3 5.7 11.9 5.9 11.4 5.9C10.7 5.9 10.3 5.8 9.7 5.5L9.5 5.4L9.3 6.8C9.7 7 10.4 7.1 11.1 7.1C12.9 7.1 14.1 6.2 14.1 4.8C14.1 4 13.6 3.5 12.5 3.1C11.9 2.8 11.5 2.6 11.5 2.3C11.5 2 11.9 1.7 12.5 1.7C13 1.7 13.4 1.8 13.8 2L14 2.1H14.1Z';
+
     const cards = [];
     document.querySelectorAll('#screen-payment-methods [data-card]').forEach(row => {
       const id = row.getAttribute('data-card');
       const last4 = id.replace('visa', '');
-      cards.push({ id, last4 });
+      const nickname = cardNicknames[id] || '';
+      cards.push({ id, last4, nickname });
     });
 
-    list.innerHTML = cards.map(c => `
-      <div class="payment-row" style="cursor:pointer;" onclick="confirmTopupWithCard('${c.id}')">
+    const cardRows = cards.map(c => `
+      <div class="payment-row" onclick="confirmTopupWithCard('${c.id}')">
         <div class="row-left">
-          <div class="visa-logo" style="width:29px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg width="22" height="8" viewBox="0 0 22 8" fill="none"><path d="M8.2 7.4H6.6L7.6 0.6H9.2L8.2 7.4ZM5.4 0.6L3.9 5.2L3.7 4.2L3.1 1.2C3 0.9 2.7 0.6 2.3 0.6H0V0.7C0.8 0.9 1.6 1.2 2.2 1.7L3.6 7.4H5.3L7.9 0.6H5.4ZM19.6 0.6H18.1L15.5 7.4H17.1L17.5 6.3H19.5L19.7 7.4H21.2L19.6 0.6ZM17.9 5L18.7 2.7L19.1 5H17.9ZM14.1 2.1L14.3 0.8C13.9 0.6 13.3 0.5 12.7 0.5C11 0.5 9.8 1.4 9.8 2.7C9.8 3.7 10.7 4.2 11.4 4.5C12.1 4.8 12.3 5 12.3 5.3C12.3 5.7 11.9 5.9 11.4 5.9C10.7 5.9 10.3 5.8 9.7 5.5L9.5 5.4L9.3 6.8C9.7 7 10.4 7.1 11.1 7.1C12.9 7.1 14.1 6.2 14.1 4.8C14.1 4 13.6 3.5 12.5 3.1C11.9 2.8 11.5 2.6 11.5 2.3C11.5 2 11.9 1.7 12.5 1.7C13 1.7 13.4 1.8 13.8 2L14 2.1H14.1Z" fill="white"/></svg>
+          <div class="visa-logo" style="width:29px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="22" height="8" viewBox="0 0 22 8" fill="none"><path d="${visaPath}" fill="white"/></svg>
           </div>
-          <span class="payment-name">Visa <span class="card-num">•• ${c.last4}</span></span>
+          <span class="payment-name">${c.nickname || 'Visa'} <span class="card-num">•• ${c.last4}</span></span>
         </div>
         <div class="row-right">
           <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#9b9b9b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
       </div>
     `).join('');
+
+    const addRow = `
+      <div class="payment-row" onclick="openAddCard('topup-card-select')">
+        <div class="row-left">
+          <div style="width:29px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="9.25" stroke="#0d57e2" stroke-width="1.5"/>
+              <path d="M10 6v8M6 10h8" stroke="#0d57e2" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="payment-name" style="color:#0d57e2;">Add Credit / Debit card</span>
+        </div>
+      </div>
+    `;
+
+    list.innerHTML = cardRows + addRow;
   }
 
   function confirmTopupWithCard(cardId) {
